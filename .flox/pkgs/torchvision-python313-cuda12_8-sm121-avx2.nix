@@ -26,21 +26,29 @@ let
     cudaSupport = true;
     gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
+    # Limit build parallelism to prevent memory saturation
+    ninjaFlags = [ "-j32" ];
+
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export MAX_JOBS=32
     '';
   });
 
 in
   (python3Packages.torchvision.override {
-    pytorch = customPytorch;
+    torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm121-avx2";
+
+    # Limit build parallelism to prevent memory saturation
+    ninjaFlags = [ "-j32" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export MAX_JOBS=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
@@ -49,6 +57,7 @@ in
       echo "CPU Features: AVX2"
       echo "CUDA: 12.8 (Compute Capability 12.1)"
       echo "CXXFLAGS: $CXXFLAGS"
+      echo "Build parallelism: 32 cores max"
       echo "========================================="
     '';
 

@@ -247,7 +247,7 @@ let
 
 in
   (python3Packages.torchvision.override {
-    pytorch = customPytorch;
+    torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm90-avx512";  # Updated name
     # ... Update preConfigure description and meta sections

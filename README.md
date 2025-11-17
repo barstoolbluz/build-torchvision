@@ -387,7 +387,7 @@ customPytorch = (python3Packages.pytorch.override {
 
 # Build TorchVision with custom PyTorch
 (python3Packages.torchvision.override {
-  pytorch = customPytorch;
+  torch = customPytorch;
 }).overrideAttrs (oldAttrs: {
   pname = "torchvision-python313-cuda12_8-sm120-avx512";
   # ... additional configuration

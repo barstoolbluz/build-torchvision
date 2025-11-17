@@ -108,18 +108,28 @@ let
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
     '';
   });
 
 in
   ({PYTHON_PACKAGES}.torchvision.override {
-    pytorch = customPytorch;
+    torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-{PYTHON}-cuda{CUDA_MAJOR}_{CUDA_MINOR}-sm121-{CPU_ISA}";
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
@@ -186,18 +196,28 @@ let
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
     '';
   });
 
 in
   ({PYTHON_PACKAGES}.torchvision.override {
-    pytorch = customPytorch;
+    torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-{PYTHON}-cuda{CUDA_MAJOR}_{CUDA_MINOR}-{GPU_ARCH}-{CPU_ISA}";
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
@@ -259,18 +279,28 @@ let
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
     '';
   });
 
 in
   ({PYTHON_PACKAGES}.torchvision.override {
-    pytorch = customPytorch;
+    torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-{PYTHON}-cpu-{CPU_ISA}";
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+
+      # Limit build parallelism to prevent memory saturation
+      export NIX_BUILD_CORES=32
+      export MAX_JOBS=32
+      export CMAKE_BUILD_PARALLEL_LEVEL=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
