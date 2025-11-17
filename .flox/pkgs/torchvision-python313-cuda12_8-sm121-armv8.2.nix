@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512
-# Package name: torchvision-python313-cuda12_8-sm120-avx512
+# TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2
+# Package name: torchvision-python313-cuda12_8-sm121-armv8.2
 
 { python3Packages
 , lib
@@ -9,24 +9,20 @@
 }:
 
 let
-  # GPU target: SM120 (Blackwell architecture - RTX 5090)
-  # PyTorch's CMake accepts numeric format (12.0) not sm_120
-  gpuArchNum = "12.0";
+  # GPU target: SM121 (DGX Spark - specialized datacenter)
+  gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
+  gpuArchSM = "sm_121";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
 
-  # CPU optimization: AVX-512
+  # CPU optimization: ARMv8.2 with FP16 and dot product support
   cpuFlags = [
-    "-mavx512f"    # AVX-512 Foundation
-    "-mavx512dq"   # Doubleword and Quadword instructions
-    "-mavx512vl"   # Vector Length extensions
-    "-mavx512bw"   # Byte and Word instructions
-    "-mfma"        # Fused multiply-add
+    "-march=armv8.2-a+fp16+dotprod"  # ARMv8.2 with FP16 and dot product
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
   # TODO: Reference the actual pytorch package from build-pytorch
   customPytorch = (python3Packages.pytorch.override {
     cudaSupport = true;
-    gpuTargets = [ gpuArchNum ];
+    gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
@@ -38,7 +34,7 @@ in
   (python3Packages.torchvision.override {
     pytorch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm120-avx512";
+    pname = "torchvision-python313-cuda12_8-sm121-armv8.2";
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
@@ -47,31 +43,31 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: SM120 (Blackwell: RTX 5090)"
-      echo "CPU Features: AVX-512"
-      echo "CUDA: 12.8 (Compute Capability 12.0)"
+      echo "GPU Target: SM121 (DGX Spark - Specialized Datacenter)"
+      echo "CPU Features: ARMv8.2 + FP16 + Dot Product"
+      echo "CUDA: 12.8 (Compute Capability 12.1)"
       echo "CXXFLAGS: $CXXFLAGS"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA RTX 5090 (SM120, Blackwell) + AVX-512";
+      description = "TorchVision for NVIDIA DGX Spark (SM121) + ARMv8.2";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA Blackwell architecture (SM120) - RTX 5090
-        - CPU: x86-64 with AVX-512 instruction set
+        - GPU: NVIDIA DGX Spark (SM121, Compute Capability 12.1)
+        - CPU: ARMv8.2 with FP16 and dot product extensions
         - CUDA: 12.8
         - Python: 3.13
 
         Hardware requirements:
-        - GPU: RTX 5090, Blackwell architecture GPUs
-        - CPU: Intel Skylake-X+ (2017+), AMD Zen 4+ (2022+)
+        - GPU: DGX Spark specialized datacenter GPUs
+        - CPU: AWS Graviton2, NVIDIA Tegra Xavier+
         - Driver: NVIDIA 570+ required
 
-        Choose this if: You have RTX 5090 with modern datacenter CPUs.
-        For specialized workloads, consider avx512bf16 (BF16 training) or
-        avx512vnni (INT8 inference) variants.
+        Choose this if: You have DGX Spark in ARM-based datacenter with
+        Graviton2 or similar ARMv8.2 processors. For newer ARM CPUs,
+        consider the armv9 variant for better performance.
       '';
-      platforms = [ "x86_64-linux" ];
+      platforms = [ "aarch64-linux" ];
     };
   })

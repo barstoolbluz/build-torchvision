@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512
-# Package name: torchvision-python313-cuda12_8-sm120-avx512
+# TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512 BF16
+# Package name: torchvision-python313-cuda12_8-sm120-avx512bf16
 
 { python3Packages
 , lib
@@ -13,12 +13,13 @@ let
   # PyTorch's CMake accepts numeric format (12.0) not sm_120
   gpuArchNum = "12.0";
 
-  # CPU optimization: AVX-512
+  # CPU optimization: AVX-512 with BF16 support
   cpuFlags = [
     "-mavx512f"    # AVX-512 Foundation
     "-mavx512dq"   # Doubleword and Quadword instructions
     "-mavx512vl"   # Vector Length extensions
     "-mavx512bw"   # Byte and Word instructions
+    "-mavx512bf16" # BF16 (Brain Float16) instructions
     "-mfma"        # Fused multiply-add
   ];
 
@@ -38,7 +39,7 @@ in
   (python3Packages.torchvision.override {
     pytorch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm120-avx512";
+    pname = "torchvision-python313-cuda12_8-sm120-avx512bf16";
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
@@ -48,29 +49,29 @@ in
       echo "TorchVision Build Configuration"
       echo "========================================="
       echo "GPU Target: SM120 (Blackwell: RTX 5090)"
-      echo "CPU Features: AVX-512"
+      echo "CPU Features: AVX-512 + BF16"
       echo "CUDA: 12.8 (Compute Capability 12.0)"
       echo "CXXFLAGS: $CXXFLAGS"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA RTX 5090 (SM120, Blackwell) + AVX-512";
+      description = "TorchVision for NVIDIA RTX 5090 (SM120, Blackwell) + AVX-512 BF16";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
         - GPU: NVIDIA Blackwell architecture (SM120) - RTX 5090
-        - CPU: x86-64 with AVX-512 instruction set
+        - CPU: x86-64 with AVX-512 + BF16 instruction set
         - CUDA: 12.8
         - Python: 3.13
 
         Hardware requirements:
         - GPU: RTX 5090, Blackwell architecture GPUs
-        - CPU: Intel Skylake-X+ (2017+), AMD Zen 4+ (2022+)
+        - CPU: Intel Sapphire Rapids+ (2023+), AMD Genoa+ (2022+)
         - Driver: NVIDIA 570+ required
 
-        Choose this if: You have RTX 5090 with modern datacenter CPUs.
-        For specialized workloads, consider avx512bf16 (BF16 training) or
-        avx512vnni (INT8 inference) variants.
+        Choose this if: You have RTX 5090 with latest datacenter CPUs and
+        need BF16 training acceleration. BF16 provides better numerical
+        stability than FP16 for training workloads.
       '';
       platforms = [ "x86_64-linux" ];
     };
