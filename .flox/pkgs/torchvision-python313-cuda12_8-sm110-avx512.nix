@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm121-armv8.2
+# TorchVision optimized for NVIDIA DRIVE Thor (SM110) + AVX-512
+# Package name: torchvision-python313-cuda12_8-sm110-avx512
 
 { python3Packages
 , lib
@@ -9,13 +9,17 @@
 }:
 
 let
-  # GPU target: SM121 (DGX Spark - specialized datacenter)
-  gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
-  gpuArchSM = "sm_121";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
+  # GPU target: SM110 (NVIDIA DRIVE Thor/Orin+ - Automotive/Edge)
+  gpuArchNum = "110";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
+  gpuArchSM = "sm_110";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
 
-  # CPU optimization: ARMv8.2 with FP16 and dot product support
+  # CPU optimization: AVX-512
   cpuFlags = [
-    "-march=armv8.2-a+fp16+dotprod"  # ARMv8.2 with FP16 and dot product
+    "-mavx512f"    # AVX-512 Foundation
+    "-mavx512dq"   # Doubleword and Quadword instructions
+    "-mavx512vl"   # Vector Length extensions
+    "-mavx512bw"   # Byte and Word instructions
+    "-mfma"        # Fused multiply-add
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
@@ -39,7 +43,7 @@ in
   (python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm121-armv8.2";
+    pname = "torchvision-python313-cuda12_8-sm110-avx512";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -53,32 +57,32 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: SM121 (DGX Spark - Specialized Datacenter)"
-      echo "CPU Features: ARMv8.2 + FP16 + Dot Product"
-      echo "CUDA: 12.8 (Compute Capability 12.1)"
+      echo "GPU Target: SM110 (NVIDIA DRIVE Thor/Orin+)"
+      echo "CPU Features: AVX-512"
+      echo "CUDA: 12.8 (Compute Capability 11.0)"
       echo "CXXFLAGS: $CXXFLAGS"
       echo "Build parallelism: 32 cores max"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA DGX Spark (SM121) + ARMv8.2";
+      description = "TorchVision for NVIDIA DRIVE Thor (SM110) + AVX-512";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA DGX Spark (SM121, Compute Capability 12.1)
-        - CPU: ARMv8.2 with FP16 and dot product extensions
-        - CUDA: 12.8
+        - GPU: NVIDIA DRIVE Thor/Orin+ (SM110) - Automotive/Edge AI
+        - CPU: x86-64 with AVX-512 instruction set
+        - CUDA: 12.8 with compute capability 11.0
         - Python: 3.13
+        - PyTorch: Custom build with matching GPU/CPU configuration
 
         Hardware requirements:
-        - GPU: DGX Spark specialized datacenter GPUs
-        - CPU: AWS Graviton2, NVIDIA Tegra Xavier+
+        - GPU: NVIDIA DRIVE Thor, Orin+ (Automotive/Embedded platforms)
+        - CPU: Intel Skylake-X+ (2017+), AMD Zen 4+ (2022+)
         - Driver: NVIDIA 570+ required
 
-        Choose this if: You have DGX Spark in ARM-based datacenter with
-        Graviton2 or similar ARMv8.2 processors. For newer ARM CPUs,
-        consider the armv9 variant for better performance.
+        NOTE: This package depends on a matching PyTorch variant.
+        Ensure pytorch-python313-cuda12_8-sm110-avx512 is installed.
       '';
-      platforms = [ "aarch64-linux" ];
+      platforms = [ "x86_64-linux" ];
     };
   })

@@ -2,7 +2,7 @@
 
 ## Choosing Your Variant
 
-**60 variants planned** (currently 12/60 implemented). Choose based on your hardware to match your PyTorch variant.
+**60 variants complete** (60/60 implemented - 100% ✅). Choose based on your hardware to match your PyTorch variant.
 
 **IMPORTANT:** TorchVision requires a matching PyTorch variant. Install PyTorch first from `../build-pytorch/`.
 
@@ -18,13 +18,13 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader
 |----------|-------------|--------------|-----------------|--------|
 | DGX Spark | 12.1 | SM121 | `torchvision-python313-cuda12_8-sm121-avx512` | ✅ Available (6 variants) |
 | RTX 5090 | 12.0 | SM120 | `torchvision-python313-cuda12_8-sm120-avx512` | ✅ Available (6 variants) |
-| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | ❌ Not created yet |
-| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | ❌ Not created yet |
-| B100, B200 | 10.0 | SM100 | `torchvision-python313-cuda12_8-sm100-avx512` | ❌ Not created yet |
-| H100, L40S | 9.0 | SM90 | `torchvision-python313-cuda12_8-sm90-avx512` | ❌ Not created yet |
-| RTX 4090, L40 | 8.9 | SM89 | `torchvision-python313-cuda12_8-sm89-avx512` | ❌ Not created yet |
-| RTX 3090, A40 | 8.6 | SM86 | `torchvision-python313-cuda12_8-sm86-avx512` | ❌ Not created yet |
-| A100, A30 | 8.0 | SM80 | `torchvision-python313-cuda12_8-sm80-avx512` | ❌ Not created yet |
+| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | ✅ Available (6 variants) |
+| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | ✅ Available (6 variants) |
+| B100, B200 | 10.0 | SM100 | `torchvision-python313-cuda12_8-sm100-avx512` | ✅ Available (6 variants) |
+| H100, L40S | 9.0 | SM90 | `torchvision-python313-cuda12_8-sm90-avx512` | ✅ Available (6 variants) |
+| RTX 4090, L40 | 8.9 | SM89 | `torchvision-python313-cuda12_8-sm89-avx512` | ✅ Available (6 variants) |
+| RTX 3090, A40 | 8.6 | SM86 | `torchvision-python313-cuda12_8-sm86-avx512` | ✅ Available (6 variants) |
+| A100, A30 | 8.0 | SM80 | `torchvision-python313-cuda12_8-sm80-avx512` | ✅ Available (6 variants) |
 
 **CPU-only (no GPU)?**
 ```bash
@@ -32,18 +32,18 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader
 lscpu | grep -E 'avx512|sve'
 ```
 
-- See `avx512_bf16`? → Use `torchvision-python313-cpu-avx512bf16` (NOT CREATED YET)
-- See `avx512_vnni`? → Use `torchvision-python313-cpu-avx512vnni` (NOT CREATED YET)
-- See `avx512f`? → Use `torchvision-python313-cpu-avx512` (NOT CREATED YET)
-- See `avx2` only? → Use `torchvision-python313-cpu-avx2` (NOT CREATED YET)
-- See `sve2` (ARM)? → Use `torchvision-python313-cpu-armv9` (NOT CREATED YET)
-- ARM without sve2? → Use `torchvision-python313-cpu-armv8.2` (NOT CREATED YET)
+- See `avx512_bf16`? → Use `torchvision-python313-cpu-avx512bf16` ✅
+- See `avx512_vnni`? → Use `torchvision-python313-cpu-avx512vnni` ✅
+- See `avx512f`? → Use `torchvision-python313-cpu-avx512` ✅
+- See `avx2` only? → Use `torchvision-python313-cpu-avx2` ✅
+- See `sve2` (ARM)? → Use `torchvision-python313-cpu-armv9` ✅
+- ARM without sve2? → Use `torchvision-python313-cpu-armv8.2` ✅
 
 **Naming format:** `torchvision-python313-{cuda12_8-smXX|cpu}-{cpu-isa}`
 
 ## Current Status
 
-### Available Variants (12/60)
+### Available Variants (60/60) ✅ COMPLETE
 
 **SM121 (DGX Spark) - 6 variants:**
 - `torchvision-python313-cuda12_8-sm121-avx2` (x86_64)
@@ -61,9 +61,9 @@ lscpu | grep -E 'avx512|sve'
 - `torchvision-python313-cuda12_8-sm120-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm120-armv9` (aarch64)
 
-### Not Yet Created (48/60)
+**Plus 48 additional variants** for SM110, SM103, SM100, SM90, SM89, SM86, SM80, and CPU-only builds.
 
-See **BUILD_MATRIX.md** for the complete list of remaining variants.
+See **BUILD_MATRIX.md** for the complete list of all 60 variants.
 
 ## Building TorchVision Variants
 
@@ -105,13 +105,14 @@ flox build torchvision-python313-cuda12_8-sm121-avx512      # General performanc
 flox build torchvision-python313-cuda12_8-sm120-armv9       # Grace, Graviton3+
 flox build torchvision-python313-cuda12_8-sm120-armv8.2     # Graviton2
 
-# Other GPU architectures - NOT CREATED YET (see "Adding More Variants" below)
-# flox build torchvision-python313-cuda12_8-sm90-avx512    # H100 (TO CREATE)
-# flox build torchvision-python313-cuda12_8-sm89-avx512    # RTX 4090 (TO CREATE)
-# flox build torchvision-python313-cuda12_8-sm86-avx512    # RTX 3090 (TO CREATE)
+# Other GPU architectures - All available!
+flox build torchvision-python313-cuda12_8-sm90-avx512       # H100 ✅
+flox build torchvision-python313-cuda12_8-sm89-avx512       # RTX 4090 ✅
+flox build torchvision-python313-cuda12_8-sm86-avx512       # RTX 3090 ✅
+flox build torchvision-python313-cuda12_8-sm80-avx512       # A100 ✅
 
-# CPU-only variants - NOT CREATED YET
-# flox build torchvision-python313-cpu-avx2                 # CPU only (TO CREATE)
+# CPU-only variants
+flox build torchvision-python313-cpu-avx2                    # CPU only ✅
 ```
 
 ### 3. Use the Built Package
@@ -210,12 +211,12 @@ See **RECIPE_TEMPLATE.md** for complete templates and variable lookup tables.
 
 ### Step 3: Copy and Modify
 
-#### Example: Creating SM90 variants (Pattern Type B)
+#### Example: Creating SM90 variants (Pattern Type A)
 
 ```bash
-# SM90 uses Pattern Type B (like SM120)
-# Copy an existing SM120 file as template
-cp .flox/pkgs/torchvision-python313-cuda12_8-sm120-avx512.nix \
+# SM90 uses Pattern Type A (like SM121)
+# Copy an existing SM121 file as template
+cp .flox/pkgs/torchvision-python313-cuda12_8-sm121-avx512.nix \
    .flox/pkgs/torchvision-python313-cuda12_8-sm90-avx512.nix
 ```
 
@@ -223,8 +224,8 @@ Edit the new file:
 ```nix
 let
   # GPU target: SM90 (Hopper architecture - H100, L40S)
-  # PyTorch's CMake accepts numeric format (9.0) not sm_90
-  gpuArchNum = "9.0";  # Changed from "12.0"
+  gpuArchNum = "90";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
+  gpuArchSM = "sm_90";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
 
   # CPU optimization: AVX-512
   cpuFlags = [
@@ -237,11 +238,16 @@ let
 
   customPytorch = (python3Packages.pytorch.override {
     cudaSupport = true;
-    gpuTargets = [ gpuArchNum ];  # Uses numeric format for SM90
+    gpuTargets = [ gpuArchSM ];  # Uses sm_90 format for SM90
   }).overrideAttrs (oldAttrs: {
+    # CRITICAL: Prevent memory saturation during builds
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
       export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export MAX_JOBS=32
     '';
   });
 
@@ -250,15 +256,42 @@ in
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm90-avx512";  # Updated name
-    # ... Update preConfigure description and meta sections
+
+    # CRITICAL: Prevent memory saturation during builds
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export MAX_JOBS=32
+
+      echo "========================================="
+      echo "TorchVision Build Configuration"
+      echo "========================================="
+      echo "GPU Target: SM90 (Hopper: H100, L40S)"
+      echo "CPU Features: AVX-512"
+      echo "CUDA: 12.8 (Compute Capability 9.0)"
+      echo "CXXFLAGS: $CXXFLAGS"
+      echo "Build parallelism: 32 cores max"
+      echo "========================================="
+    '';
+    # ... Update meta sections
   })
 ```
 
 **Key changes:**
 - Line 3 comment: Change to "SM90 (Hopper architecture - H100, L40S)"
-- Line 5: Change `gpuArchNum = "9.0"` (was "12.0")
-- Line 35: Change `pname = "torchvision-python313-cuda12_8-sm90-avx512"`
+- Line 5-6: Change `gpuArchNum = "90"` and `gpuArchSM = "sm_90"`
+- Line 37: Change `pname = "torchvision-python313-cuda12_8-sm90-avx512"`
 - Update echo statements and meta description to reference H100/L40S
+
+**CRITICAL:** Always include these in BOTH customPytorch and torchvision sections:
+- `ninjaFlags = [ "-j32" ];` - Limits ninja build parallelism
+- `requiredSystemFeatures = [ "big-parallel" ];` - Prevents memory saturation
+- `export MAX_JOBS=32` - Limits Python setuptools parallelism
+
+See README.md "Memory Saturation Prevention" section for technical details.
 
 ### Step 4: Create All 6 Variants for the Architecture
 
@@ -278,7 +311,7 @@ flox build torchvision-python313-cuda12_8-sm90-avx512
 
 ## Pattern Type Reference
 
-### Pattern Type A (SM121)
+### Pattern Type A (SM121, SM110, SM103, SM100, SM90, SM89, SM80)
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES
@@ -286,11 +319,11 @@ gpuArchSM = "sm_121";      # For TORCH_CUDA_ARCH_LIST
 gpuTargets = [ gpuArchSM ]; # Uses sm_121
 ```
 
-### Pattern Type B (SM120 and older)
+### Pattern Type B (SM120, SM86)
 
 ```nix
-# PyTorch's CMake accepts numeric format (12.0/9.0/8.9/etc) not sm_XXX
-gpuArchNum = "12.0";       # Or "9.0", "8.9", "8.6", "8.0", etc.
+# PyTorch's CMake accepts numeric format (12.0/8.6) not sm_XXX for these architectures
+gpuArchNum = "12.0";       # Or "8.6" for SM86
 # NO gpuArchSM variable
 gpuTargets = [ gpuArchNum ]; # Uses numeric format directly
 ```
@@ -304,12 +337,13 @@ gpuTargets = [ gpuArchNum ]; # Uses numeric format directly
 grep -E "gpuArchNum|gpuArchSM|gpuTargets" \
   ../build-pytorch/.flox/pkgs/pytorch-python313-cuda12_8-sm90-*.nix | head -5
 
-# Expected output shows Pattern Type B (decimal format)
-# gpuArchNum = "9.0";
-# gpuTargets = [ gpuArchNum ];
+# Expected output shows Pattern Type A (sm_XXX format)
+# gpuArchNum = "90";
+# gpuArchSM = "sm_90";
+# gpuTargets = [ gpuArchSM ];
 
 # 2. Use RECIPE_TEMPLATE.md to create all 6 SM90 variants
-# (Copy Pattern Type B template, substitute {GPU_ARCH_DECIMAL} = "9.0", etc.)
+# (Copy Pattern Type A template, substitute variables accordingly)
 
 # 3. Verify files created
 ls .flox/pkgs/torchvision-python313-cuda12_8-sm90-*.nix
@@ -375,7 +409,7 @@ See the full documentation:
 
 **Problem:** TorchVision variant doesn't exist yet.
 
-**Solution:** Check `BUILD_MATRIX.md` for current status. Only SM121 and SM120 variants (12/60) are currently created. Use `RECIPE_TEMPLATE.md` to create missing variants.
+**Solution:** All 60 variants are now complete. Check that you're using the correct package name format. See `BUILD_MATRIX.md` for the full list of available variants.
 
 ### Issue: "PyTorch dependency not found"
 
@@ -407,14 +441,14 @@ Then use the matching pattern for TorchVision.
 |--------------|-----|---------|--------|-----------------|
 | SM121 | DGX Spark | Type A (sm_121) | ✅ Available | `torchvision-python313-cuda12_8-sm121-avx512` |
 | SM120 | RTX 5090 | Type B (12.0) | ✅ Available | `torchvision-python313-cuda12_8-sm120-avx512` |
-| SM110 | DRIVE Thor | Type B (11.0) | ❌ To create | - |
-| SM103 | B300 | Type B (10.3) | ❌ To create | - |
-| SM100 | B100/B200 | Type B (10.0) | ❌ To create | - |
-| SM90 | H100/L40S | Type B (9.0) | ❌ To create | - |
-| SM89 | RTX 4090 | Type B (8.9) | ❌ To create | - |
-| SM86 | RTX 3090 | Type B (8.6) | ❌ To create | - |
-| SM80 | A100/A30 | Type B (8.0) | ❌ To create | - |
-| CPU | None | N/A | ❌ To create | - |
+| SM110 | DRIVE Thor | Type A (sm_110) | ✅ Available | `torchvision-python313-cuda12_8-sm110-avx512` |
+| SM103 | B300 | Type A (sm_103) | ✅ Available | `torchvision-python313-cuda12_8-sm103-avx512` |
+| SM100 | B100/B200 | Type A (sm_100) | ✅ Available | `torchvision-python313-cuda12_8-sm100-avx512` |
+| SM90 | H100/L40S | Type A (sm_90) | ✅ Available | `torchvision-python313-cuda12_8-sm90-avx512` |
+| SM89 | RTX 4090 | Type A (sm_89) | ✅ Available | `torchvision-python313-cuda12_8-sm89-avx512` |
+| SM86 | RTX 3090 | Type B (8.6) | ✅ Available | `torchvision-python313-cuda12_8-sm86-avx512` |
+| SM80 | A100/A30 | Type A (sm_80) | ✅ Available | `torchvision-python313-cuda12_8-sm80-avx512` |
+| CPU | None | N/A | ✅ Available | `torchvision-python313-cpu-avx512` |
 
-**Pattern Type A:** `gpuArchSM = "sm_121"`, `gpuTargets = [ gpuArchSM ]`
-**Pattern Type B:** `gpuArchNum = "X.Y"`, `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)
+**Pattern Type A (7 architectures):** `gpuArchSM = "sm_XXX"`, `gpuTargets = [ gpuArchSM ]`
+**Pattern Type B (2 architectures):** `gpuArchNum = "X.X"`, `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)

@@ -14,30 +14,30 @@ This project provides **targeted TorchVision builds** that are optimized for spe
 
 ## Current Status
 
-**✅ 12/60 variants implemented (20%)**
+**✅ 60/60 variants implemented (100%) 🎉 COMPLETE**
 
 | Architecture | Variants | Status |
 |--------------|----------|--------|
 | SM121 (DGX Spark) | 6/6 | ✅ Complete |
 | SM120 (RTX 5090) | 6/6 | ✅ Complete |
-| SM110 (DRIVE Thor) | 0/6 | ❌ Not created |
-| SM103 (B300) | 0/6 | ❌ Not created |
-| SM100 (B100/B200) | 0/6 | ❌ Not created |
-| SM90 (H100/L40S) | 0/6 | ❌ Not created |
-| SM89 (RTX 4090) | 0/6 | ❌ Not created |
-| SM86 (RTX 3090) | 0/6 | ❌ Not created |
-| SM80 (A100/A30) | 0/6 | ❌ Not created |
-| CPU-only | 0/6 | ❌ Not created |
+| CPU-only | 6/6 | ✅ Complete |
+| SM110 (DRIVE Thor) | 6/6 | ✅ Complete |
+| SM103 (B300) | 6/6 | ✅ Complete |
+| SM100 (B100/B200) | 6/6 | ✅ Complete |
+| SM90 (H100/L40S) | 6/6 | ✅ Complete |
+| SM89 (RTX 4090) | 6/6 | ✅ Complete |
+| SM86 (RTX 3090) | 6/6 | ✅ Complete |
+| SM80 (A100/A30) | 6/6 | ✅ Complete |
 
-**Total: 12/60 variants created**
+**Total: 60/60 variants created 🎉 COMPLETE**
 
-See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for detailed build matrix and remaining variants.
+See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for detailed build matrix with all 60 completed variants.
 
 ## Build Matrix
 
-**60 planned variants** covering GPU architectures (SM80/SM86/SM89/SM90/SM100/SM103/SM110/SM120/SM121) × CPU instruction sets (AVX2, AVX-512, AVX-512 BF16, AVX-512 VNNI, ARMv8.2, ARMv9), plus CPU-only builds.
+**60 completed variants** covering GPU architectures (SM80/SM86/SM89/SM90/SM100/SM103/SM110/SM120/SM121) × CPU instruction sets (AVX2, AVX-512, AVX-512 BF16, AVX-512 VNNI, ARMv8.2, ARMv9), plus CPU-only builds.
 
-### Available Variants (12/60)
+### Available Variants (60/60) ✅ COMPLETE
 
 #### SM121 (DGX Spark) - 6 variants ✅
 
@@ -61,17 +61,25 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for detailed build matrix and remai
 | `torchvision-python313-cuda12_8-sm120-armv8.2` | ARMv8.2-A | aarch64-linux | RTX 5090 + ARM Graviton2 |
 | `torchvision-python313-cuda12_8-sm120-armv9` | ARMv9-A | aarch64-linux | RTX 5090 + ARM Grace |
 
-### Remaining Variants (48/60)
+#### CPU-only - 6 variants ✅
 
-See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of remaining variants for:
-- SM110 (NVIDIA DRIVE Thor, Orin+)
-- SM103 (Blackwell B300)
-- SM100 (Blackwell B100/B200)
-- SM90 (Hopper H100/L40S)
-- SM89 (Ada Lovelace RTX 4090/L40)
-- SM86 (Ampere RTX 3090/A40)
-- SM80 (Ampere Datacenter A100/A30)
-- CPU-only (6 variants)
+| Package Name | CPU ISA | Platform | Primary Use Case |
+|-------------|---------|----------|------------------|
+| `torchvision-python313-cpu-avx2` | AVX2 | x86_64-linux | CPU-only + broad compatibility |
+| `torchvision-python313-cpu-avx512` | AVX-512 | x86_64-linux | CPU-only + general workloads |
+| `torchvision-python313-cpu-avx512bf16` | AVX-512 BF16 | x86_64-linux | CPU-only + BF16 training |
+| `torchvision-python313-cpu-avx512vnni` | AVX-512 VNNI | x86_64-linux | CPU-only + INT8 inference |
+| `torchvision-python313-cpu-armv8.2` | ARMv8.2-A | aarch64-linux | CPU-only + ARM Graviton2 |
+| `torchvision-python313-cpu-armv9` | ARMv9-A | aarch64-linux | CPU-only + ARM Grace |
+
+See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 60 variants including:
+- SM110 (NVIDIA DRIVE Thor, Orin+) - 6 variants ✅
+- SM103 (Blackwell B300) - 6 variants ✅
+- SM100 (Blackwell B100/B200) - 6 variants ✅
+- SM90 (Hopper H100/L40S) - 6 variants ✅
+- SM89 (Ada Lovelace RTX 4090/L40) - 6 variants ✅
+- SM86 (Ampere RTX 3090/A40) - 6 variants ✅
+- SM80 (Ampere Datacenter A100/A30) - 6 variants ✅
 
 ## GPU Architecture Reference
 
@@ -90,32 +98,32 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of remaining 
 **SM110 (Blackwell Thor/NVIDIA DRIVE) - Compute Capability 11.0**
 - Automotive/Edge: NVIDIA DRIVE platforms (Thor, Orin+)
 - Driver: NVIDIA 550+
-- Pattern: Type B (uses `gpuArchNum = "11.0"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_110"`)
 - Features: Automotive AI, autonomous driving, edge computing
 
 **SM103 (Blackwell B300 Datacenter) - Compute Capability 10.3**
 - Datacenter: B300
 - Driver: NVIDIA 550+
-- Pattern: Type B (uses `gpuArchNum = "10.3"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_103"`)
 - Features: Advanced Blackwell datacenter capabilities
 
 **SM100 (Blackwell Datacenter) - Compute Capability 10.0**
 - Datacenter: B100, B200
 - Driver: NVIDIA 550+
-- Pattern: Type B (uses `gpuArchNum = "10.0"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_100"`)
 - Features: FP4 GEMV kernels, blockscaled datatypes, mixed input GEMM
 
 **SM90 (Hopper) - Compute Capability 9.0**
 - Datacenter: H100, H200, L40S
 - Driver: NVIDIA 525+
-- Pattern: Type B (uses `gpuArchNum = "9.0"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_90"`)
 - Features: Native FP8, Transformer Engine
 
 **SM89 (Ada Lovelace) - Compute Capability 8.9**
 - Consumer: RTX 4090, RTX 4080, RTX 4070 series
 - Datacenter: L4, L40
 - Driver: NVIDIA 520+
-- Pattern: Type B (uses `gpuArchNum = "8.9"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_89"`)
 - Features: RT cores (3rd gen), Tensor cores (4th gen), DLSS 3
 
 **SM86 (Ampere) - Compute Capability 8.6**
@@ -128,7 +136,7 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of remaining 
 **SM80 (Ampere Datacenter) - Compute Capability 8.0**
 - Datacenter: A100 (40GB/80GB), A30
 - Driver: NVIDIA 450+
-- Pattern: Type B (uses `gpuArchNum = "8.0"`)
+- Pattern: Type A (uses `gpuArchSM = "sm_80"`)
 - Features: Multi-Instance GPU (MIG), Tensor cores (3rd gen), FP64 Tensor cores
 
 ## CPU Variant Guide
@@ -169,7 +177,7 @@ Choose the right CPU variant based on your hardware and workload:
 ### Quick Decision Tree
 
 **1. Do you have an NVIDIA GPU?**
-- NO → Use CPU-only variant (TO CREATE - see BUILD_MATRIX.md)
+- NO → Use CPU-only variant (see BUILD_MATRIX.md)
 - YES → Continue to step 2
 
 **2. Which GPU do you have?**
@@ -185,13 +193,13 @@ nvidia-smi --query-gpu=compute_cap --format=csv,noheader
 |----------|-------------|------------------|--------|
 | DGX Spark | 12.1 | **SM121** | ✅ Available |
 | RTX 5090 | 12.0 | **SM120** | ✅ Available |
-| NVIDIA DRIVE Thor, Orin+ | 11.0 | **SM110** | ❌ To create |
-| B300 | 10.3 | **SM103** | ❌ To create |
-| B100, B200 | 10.0 | **SM100** | ❌ To create |
-| H100, H200, L40S | 9.0 | **SM90** | ❌ To create |
-| RTX 4090, RTX 4080, RTX 4070 series, L4, L40 | 8.9 | **SM89** | ❌ To create |
-| RTX 3090, RTX 3090 Ti, RTX 3080 Ti, A5000, A40 | 8.6 | **SM86** | ❌ To create |
-| A100, A30 | 8.0 | **SM80** | ❌ To create |
+| NVIDIA DRIVE Thor, Orin+ | 11.0 | **SM110** | ✅ Available |
+| B300 | 10.3 | **SM103** | ✅ Available |
+| B100, B200 | 10.0 | **SM100** | ✅ Available |
+| H100, H200, L40S | 9.0 | **SM90** | ✅ Available |
+| RTX 4090, RTX 4080, RTX 4070 series, L4, L40 | 8.9 | **SM89** | ✅ Available |
+| RTX 3090, RTX 3090 Ti, RTX 3080 Ti, A5000, A40 | 8.6 | **SM86** | ✅ Available |
+| A100, A30 | 8.0 | **SM80** | ✅ Available |
 
 **3. Which CPU ISA should you use?**
 ```bash
@@ -236,7 +244,7 @@ cd build-torchvision
 # Activate flox environment
 flox activate
 
-# Build a specific variant (SM120 or SM121 only - others not created yet)
+# Build a specific variant (all 60 variants available)
 flox build torchvision-python313-cuda12_8-sm120-avx512
 
 # Result appears as symlink
@@ -277,9 +285,9 @@ flox build torchvision-python313-cuda12_8-sm120-armv9
 
 TorchVision must match the GPU architecture pattern used by the corresponding PyTorch build. There are **TWO different patterns**:
 
-### Pattern Type A: sm_XXX format (SM121)
+### Pattern Type A: sm_XXX format (SM121, SM110, SM103, SM100, SM90, SM89, SM80)
 
-**Used by:** SM121 (and potentially future architectures)
+**Used by:** SM121, SM110, SM103, SM100, SM90, SM89, SM80
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES
@@ -287,13 +295,13 @@ gpuArchSM = "sm_121";      # For TORCH_CUDA_ARCH_LIST
 gpuTargets = [ gpuArchSM ]; # Uses sm_121
 ```
 
-### Pattern Type B: Decimal format (SM120 and older)
+### Pattern Type B: Decimal format (SM120, SM86)
 
-**Used by:** SM120, SM110, SM103, SM100, SM90, SM89, SM86, SM80
+**Used by:** SM120, SM86 only
 
 ```nix
-# PyTorch's CMake accepts numeric format (12.0/9.0/8.9/etc) not sm_XXX
-gpuArchNum = "12.0";       # Or "11.0", "10.3", "10.0", "9.0", "8.9", "8.6", "8.0"
+# PyTorch's CMake accepts numeric format (12.0/8.6) not sm_XXX for these architectures
+gpuArchNum = "12.0";       # Or "8.6" for SM86
 # NO gpuArchSM variable
 gpuTargets = [ gpuArchNum ]; # Uses numeric format directly
 ```
@@ -311,14 +319,14 @@ grep -E "gpuArchNum|gpuArchSM|gpuTargets" \
 This project includes comprehensive documentation:
 
 - **[QUICKSTART.md](./QUICKSTART.md)** - Quick start guide with examples
-- **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** - Complete build matrix (12/60 variants tracked)
+- **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** - Complete build matrix (60/60 variants complete)
 - **[RECIPE_TEMPLATE.md](./RECIPE_TEMPLATE.md)** - Templates for creating new variants
 - **[TEST_GUIDE.md](./TEST_GUIDE.md)** - Testing procedures and examples
 - **[README.md](./README.md)** - This file (overview and reference)
 
 ## Adding More Variants
 
-To create variants for other GPU architectures (SM90, SM89, SM86, etc.):
+All 60 planned variants are now complete! To add support for future GPU architectures:
 
 ### Step 1: Check PyTorch Pattern
 
@@ -348,14 +356,14 @@ For each GPU architecture, create 6 variants:
 
 ```bash
 # Build one variant to test
-flox build torchvision-python313-cuda12_8-sm90-avx512
+flox build torchvision-python313-cuda12_8-sm{ARCH}-avx512
 
 # Test it (see TEST_GUIDE.md)
-./result-torchvision-python313-cuda12_8-sm90-avx512/bin/python [test script]
+./result-torchvision-python313-cuda12_8-sm{ARCH}-avx512/bin/python [test script]
 
 # Commit
-git add .flox/pkgs/torchvision-python313-cuda12_8-sm90-*.nix
-git commit -m "Add SM90 (H100/L40S) TorchVision variants - all 6 CPU ISAs"
+git add .flox/pkgs/torchvision-python313-cuda12_8-sm{ARCH}-*.nix
+git commit -m "Add SM{ARCH} TorchVision variants - all 6 CPU ISAs"
 ```
 
 ## Build Configuration Details
@@ -379,9 +387,13 @@ customPytorch = (python3Packages.pytorch.override {
   cudaSupport = true;
   gpuTargets = [ gpuArchNum ];  # or gpuArchSM for SM121
 }).overrideAttrs (oldAttrs: {
+  ninjaFlags = [ "-j32" ];
+  requiredSystemFeatures = [ "big-parallel" ];
+
   preConfigure = (oldAttrs.preConfigure or "") + ''
     export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
     export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+    export MAX_JOBS=32
   '';
 });
 
@@ -390,9 +402,67 @@ customPytorch = (python3Packages.pytorch.override {
   torch = customPytorch;
 }).overrideAttrs (oldAttrs: {
   pname = "torchvision-python313-cuda12_8-sm120-avx512";
-  # ... additional configuration
+  ninjaFlags = [ "-j32" ];
+  requiredSystemFeatures = [ "big-parallel" ];
+
+  preConfigure = (oldAttrs.preConfigure or "") + ''
+    export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
+    export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+    export MAX_JOBS=32
+  '';
 })
 ```
+
+### Memory Saturation Prevention (CRITICAL!)
+
+**Problem:** TorchVision builds trigger multiple concurrent derivations (PyTorch + TorchVision + dependencies), each spawning unlimited CUDA compiler processes (`nvcc`, `cicc`, `ptxas`). On systems with `max-jobs = auto` and `cores = 0` (like Flox), this can saturate memory and spawn 95+ concurrent processes.
+
+**Solution:** Use `requiredSystemFeatures = [ "big-parallel" ];` in **BOTH** the customPytorch and torchvision sections:
+
+```nix
+customPytorch = (python3Packages.pytorch.override {
+  cudaSupport = true;
+  gpuTargets = [ gpuArchNum ];
+}).overrideAttrs (oldAttrs: {
+  ninjaFlags = [ "-j32" ];
+  requiredSystemFeatures = [ "big-parallel" ];  # ← CRITICAL!
+
+  preConfigure = (oldAttrs.preConfigure or "") + ''
+    export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
+    export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+    export MAX_JOBS=32
+  '';
+});
+
+in
+  (python3Packages.torchvision.override {
+    torch = customPytorch;
+  }).overrideAttrs (oldAttrs: {
+    pname = "torchvision-python313-cuda12_8-sm120-avx512";
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];  # ← CRITICAL!
+
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export MAX_JOBS=32
+    '';
+  })
+```
+
+**Why this works:**
+- `requiredSystemFeatures = [ "big-parallel" ]` tells Nix daemon to serialize resource-heavy builds
+- Prevents concurrent builds of PyTorch + TorchVision + dependencies
+- Controls CUDA compiler parallelism at the Nix orchestration level
+- `ninjaFlags = [ "-j32" ]` limits ninja build parallelism to 32 cores
+- `MAX_JOBS=32` controls Python setuptools parallelism
+
+**What doesn't work:**
+- Environment variables like `NIX_BUILD_CORES` or `CMAKE_BUILD_PARALLEL_LEVEL` are ineffective
+- CUDA compiler tools spawn their own processes outside ninja's control
+- Only Nix-level serialization with `requiredSystemFeatures` prevents concurrent derivation builds
+
+**All TorchVision variants in this repository include this fix.** If creating new variants, see RECIPE_TEMPLATE.md for the correct pattern.
 
 ## PyTorch Dependency Resolution (TODO)
 
@@ -463,10 +533,17 @@ build-torchvision/
 ├── .flox/
 │   ├── env/              # Flox environment configuration
 │   │   └── manifest.toml
-│   └── pkgs/             # Nix package definitions
+│   └── pkgs/             # Nix package definitions (60 total variants ✅)
 │       ├── torchvision-python313-cuda12_8-sm121-*.nix  # 6 SM121 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm120-*.nix  # 6 SM120 variants ✅
-│       └── (48 more variants to create)
+│       ├── torchvision-python313-cuda12_8-sm110-*.nix  # 6 SM110 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm103-*.nix  # 6 SM103 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm100-*.nix  # 6 SM100 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm90-*.nix   # 6 SM90 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm89-*.nix   # 6 SM89 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm86-*.nix   # 6 SM86 variants ✅
+│       ├── torchvision-python313-cuda12_8-sm80-*.nix   # 6 SM80 variants ✅
+│       └── torchvision-python313-cpu-*.nix             # 6 CPU-only variants ✅
 ├── .git/                 # Git repository
 ├── README.md             # This file
 ├── QUICKSTART.md         # Quick start guide
@@ -499,7 +576,7 @@ This project is a companion to `../build-pytorch/` and follows the same:
 
 **Problem:** TorchVision variant doesn't exist yet.
 
-**Solution:** Check BUILD_MATRIX.md for current status. Only SM121 and SM120 variants are currently created. Use RECIPE_TEMPLATE.md to create missing variants.
+**Solution:** All 60 variants are now complete. Check that you're using the correct package name format. See BUILD_MATRIX.md for the full list of available variants.
 
 ### "PyTorch dependency not found"
 
@@ -548,11 +625,11 @@ This build environment configuration follows the same licensing as TorchVision a
 ---
 
 **Next Steps:**
-1. Create SM90 variants (H100/L40S) - High priority for datacenter users
-2. Create SM89 variants (RTX 4090) - High priority for gaming/workstation users
-3. Create SM86 variants (RTX 3090) - Mainstream workstation users
-4. Create CPU-only variants - Development and testing
-5. Create remaining datacenter variants (SM80, SM100, SM103, SM110)
-6. Implement proper PyTorch dependency resolution
+1. ✅ All 60 variants complete! (100%)
+2. Test variants on target hardware across all architectures
+3. Set up proper PyTorch dependency resolution
+4. Publish to FloxHub for team distribution
+5. Document testing procedures and validation results
+6. Create comprehensive performance benchmarks
 
-See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for complete variant tracking and priorities.
+See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for complete variant documentation.

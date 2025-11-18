@@ -20,9 +20,17 @@ print(f'CUDA available: {torch.cuda.is_available()}')
 
 ### Available Builds
 
-Currently implemented (12/60):
+Currently implemented (60/60) ✅ COMPLETE:
 - **SM121 variants:** `torchvision-python313-cuda12_8-sm121-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 - **SM120 variants:** `torchvision-python313-cuda12_8-sm120-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM110 variants:** `torchvision-python313-cuda12_8-sm110-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM103 variants:** `torchvision-python313-cuda12_8-sm103-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM100 variants:** `torchvision-python313-cuda12_8-sm100-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM90 variants:** `torchvision-python313-cuda12_8-sm90-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM89 variants:** `torchvision-python313-cuda12_8-sm89-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM86 variants:** `torchvision-python313-cuda12_8-sm86-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM80 variants:** `torchvision-python313-cuda12_8-sm80-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **CPU-only variants:** `torchvision-python313-cpu-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 
 ## What the Tests Should Check
 
@@ -365,11 +373,15 @@ Test 3: GPU Inference
 
 | Build Variant | Compiled For | Works On | Notes |
 |---------------|--------------|----------|-------|
-| `sm121-*` | DGX Spark | DGX Spark | Native support |
-| `sm120-*` | RTX 5090 (Blackwell) | RTX 5090+ | Native support |
-| `sm90-*` | H100, L40S (Hopper) | H100, L40S | Native support |
-| `sm89-*` | RTX 4090 (Ada Lovelace) | RTX 4090, L40 | Native support |
-| `sm86-*` | RTX 3090, A40 (Ampere) | RTX 3090, A40, A5000 | Native support |
+| `sm121-*` | DGX Spark | DGX Spark | Native support ✅ |
+| `sm120-*` | RTX 5090 (Blackwell) | RTX 5090+ | Native support ✅ |
+| `sm110-*` | NVIDIA DRIVE Thor | DRIVE Thor, Orin+ | Native support ✅ |
+| `sm103-*` | B300 (Blackwell) | B300 | Native support ✅ |
+| `sm100-*` | B100, B200 (Blackwell) | B100, B200 | Native support ✅ |
+| `sm90-*` | H100, L40S (Hopper) | H100, L40S | Native support ✅ |
+| `sm89-*` | RTX 4090 (Ada Lovelace) | RTX 4090, L40 | Native support ✅ |
+| `sm86-*` | RTX 3090, A40 (Ampere) | RTX 3090, A40, A5000 | Native support ✅ |
+| `sm80-*` | A100, A30 (Ampere) | A100, A30 | Native support ✅ |
 | `sm120-*` | RTX 5090 | RTX 3090 | ❌ Won't work (backward incompatible) |
 | `sm86-*` | RTX 3090 | RTX 5090 | ❌ Won't work (forward incompatible) |
 
@@ -469,12 +481,15 @@ flox publish -o <your-org> torchvision-python313-cuda12_8-sm120-avx512
 **Problem**: Testing an SM86 build on an RTX 5090, or vice versa.
 
 **Solution**: This is expected behavior! Build the correct variant for your GPU:
-- DGX Spark → use SM121 builds
-- RTX 5090 → use SM120 builds
-- H100/L40S → use SM90 builds (TO CREATE)
-- RTX 4090 → use SM89 builds (TO CREATE)
-- RTX 3090/A40 → use SM86 builds (TO CREATE)
-- A100/A30 → use SM80 builds (TO CREATE)
+- DGX Spark → use SM121 builds ✅
+- RTX 5090 → use SM120 builds ✅
+- NVIDIA DRIVE Thor/Orin+ → use SM110 builds ✅
+- B300 → use SM103 builds ✅
+- B100/B200 → use SM100 builds ✅
+- H100/L40S → use SM90 builds ✅
+- RTX 4090 → use SM89 builds ✅
+- RTX 3090/A40 → use SM86 builds ✅
+- A100/A30 → use SM80 builds ✅
 
 See [QUICKSTART.md](./QUICKSTART.md#choosing-your-variant) for complete GPU selection guide.
 

@@ -38,22 +38,22 @@ Build Variant = f(Python_Version, GPU_Architecture, CPU_ISA, CUDA_Toolkit)
 |------------|--------------|------|------------------|---------|--------|
 | **SM121** | DGX Spark | DGX Spark (Specialized Datacenter) | CUDA 12.8+ | Type A | ✅ Done (6/6) |
 | **SM120** | Blackwell | RTX 5090 | CUDA 12.8+ | Type B | ✅ Done (6/6) |
-| **SM110** | Automotive | DRIVE Thor, Orin+ | CUDA 12.0+ | Type B | ❌ Not created |
-| **SM103** | Blackwell DC | B300 (Datacenter) | CUDA 12.0+ | Type B | ❌ Not created |
-| **SM100** | Blackwell DC | B100/B200 (Datacenter) | CUDA 12.0+ | Type B | ❌ Not created |
-| **SM90** | Hopper | H100, H200, L40S | CUDA 12.0+ | Type B | ❌ Not created |
-| **SM89** | Ada Lovelace | RTX 4090, L4, L40 | CUDA 11.8+ | Type B | ❌ Not created |
-| **SM86** | Ampere | RTX 3090, A5000, A40 | CUDA 11.1+ | Type B | ❌ Not created |
-| **SM80** | Ampere DC | A100, A30 | CUDA 11.0+ | Type B | ❌ Not created |
-| **CPU** | None | N/A | N/A | N/A | ❌ Not created |
+| **SM110** | Automotive | DRIVE Thor, Orin+ | CUDA 12.0+ | Type A | ✅ Done (6/6) |
+| **SM103** | Blackwell DC | B300 (Datacenter) | CUDA 12.0+ | Type A | ✅ Done (6/6) |
+| **SM100** | Blackwell DC | B100/B200 (Datacenter) | CUDA 12.0+ | Type A | ✅ Done (6/6) |
+| **SM90** | Hopper | H100, H200, L40S | CUDA 12.0+ | Type A | ✅ Done (6/6) |
+| **SM89** | Ada Lovelace | RTX 4090, L4, L40 | CUDA 11.8+ | Type A | ✅ Done (6/6) |
+| **SM86** | Ampere | RTX 3090, A5000, A40 | CUDA 11.1+ | Type B | ✅ Done (6/6) |
+| **SM80** | Ampere DC | A100, A30 | CUDA 11.0+ | Type A | ✅ Done (6/6) |
+| **CPU** | None | N/A | N/A | N/A | ✅ Done (6/6) |
 
 **Naming:** `sm121`, `sm120`, `sm110`, `sm103`, `sm100`, `sm90`, `sm89`, `sm86`, `sm80`, `cpu`
 
 **Example:** `torchvision-python313-cuda12_8-sm120-...`
 
 **Important Notes:**
-- **Pattern Type A (SM121):** Uses `gpuArchSM = "sm_121"` and `gpuTargets = [ gpuArchSM ]`
-- **Pattern Type B (SM120 and older):** Uses `gpuArchNum = "12.0"` (decimal) and `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)
+- **Pattern Type A (SM121, SM110, SM103, SM100, SM90, SM89, SM80):** Uses `gpuArchSM = "sm_XXX"` and `gpuTargets = [ gpuArchSM ]`
+- **Pattern Type B (SM120, SM86):** Uses `gpuArchNum = "X.X"` (decimal) and `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)
 - Always check the corresponding PyTorch pattern before creating TorchVision variants!
 - SM120 requires PyTorch 2.7+ with CUDA 12.8+ and driver 570+
 
@@ -104,7 +104,7 @@ Build Variant = f(Python_Version, GPU_Architecture, CPU_ISA, CUDA_Toolkit)
   - ARM: 18 (9 GPU × 2 CPU ISAs)
 - **CPU-only builds:** 6 (6 CPU ISAs)
 
-**Currently implemented:** 12/60 (20%)
+**Currently implemented:** 60/60 (100%) ✅ COMPLETE
 
 ### Implemented Variants
 
@@ -149,12 +149,12 @@ gpuArchNum = "12.0";
 gpuTargets = [ gpuArchNum ];
 ```
 
-### Remaining Variants (48/60)
+### Additional Implemented Variants (48/60) ✅ COMPLETE
 
-#### SM110 Variants (0/6) - Pattern Type B
+#### SM110 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA DRIVE Thor, Orin+ (Automotive)
-**Pattern:** Decimal format (`gpuArchNum = "11.0"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_110"`)
 
 - `torchvision-python313-cuda12_8-sm110-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm110-avx512` (x86_64)
@@ -163,10 +163,10 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm110-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm110-armv9` (aarch64)
 
-#### SM103 Variants (0/6) - Pattern Type B
+#### SM103 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA Blackwell B300 (Datacenter)
-**Pattern:** Decimal format (`gpuArchNum = "10.3"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_103"`)
 
 - `torchvision-python313-cuda12_8-sm103-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm103-avx512` (x86_64)
@@ -175,10 +175,10 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm103-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm103-armv9` (aarch64)
 
-#### SM100 Variants (0/6) - Pattern Type B
+#### SM100 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA Blackwell B100/B200 (Datacenter)
-**Pattern:** Decimal format (`gpuArchNum = "10.0"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_100"`)
 
 - `torchvision-python313-cuda12_8-sm100-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm100-avx512` (x86_64)
@@ -187,10 +187,10 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm100-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm100-armv9` (aarch64)
 
-#### SM90 Variants (0/6) - Pattern Type B
+#### SM90 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA Hopper (H100, L40S)
-**Pattern:** Decimal format (`gpuArchNum = "9.0"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_90"`)
 
 - `torchvision-python313-cuda12_8-sm90-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm90-avx512` (x86_64)
@@ -199,10 +199,10 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm90-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm90-armv9` (aarch64)
 
-#### SM89 Variants (0/6) - Pattern Type B
+#### SM89 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA Ada Lovelace (RTX 4090, L40)
-**Pattern:** Decimal format (`gpuArchNum = "8.9"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_89"`)
 
 - `torchvision-python313-cuda12_8-sm89-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm89-avx512` (x86_64)
@@ -211,7 +211,7 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm89-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm89-armv9` (aarch64)
 
-#### SM86 Variants (0/6) - Pattern Type B
+#### SM86 Variants (6/6) ✅ COMPLETE - Pattern Type B
 
 **GPU:** NVIDIA Ampere (RTX 3090, A40, A5000)
 **Pattern:** Decimal format (`gpuArchNum = "8.6"`)
@@ -223,10 +223,10 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm86-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm86-armv9` (aarch64)
 
-#### SM80 Variants (0/6) - Pattern Type B
+#### SM80 Variants (6/6) ✅ COMPLETE - Pattern Type A
 
 **GPU:** NVIDIA Ampere Datacenter (A100, A30)
-**Pattern:** Decimal format (`gpuArchNum = "8.0"`)
+**Pattern:** sm_XXX format (`gpuArchSM = "sm_80"`)
 
 - `torchvision-python313-cuda12_8-sm80-avx2` (x86_64)
 - `torchvision-python313-cuda12_8-sm80-avx512` (x86_64)
@@ -235,7 +235,7 @@ gpuTargets = [ gpuArchNum ];
 - `torchvision-python313-cuda12_8-sm80-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm80-armv9` (aarch64)
 
-#### CPU-only Variants (0/6)
+#### CPU-only Variants (6/6) ✅ COMPLETE
 
 - `torchvision-python313-cpu-avx2` (x86_64 or both platforms)
 - `torchvision-python313-cpu-avx512` (x86_64 or both platforms)
@@ -248,9 +248,9 @@ gpuTargets = [ gpuArchNum ];
 
 TorchVision must match the GPU architecture pattern used by the corresponding PyTorch build. There are **TWO different patterns**:
 
-### Pattern Type A: sm_XXX format (SM121)
+### Pattern Type A: sm_XXX format (SM121, SM110, SM103, SM100, SM90, SM89, SM80)
 
-**Used by:** SM121 (and potentially future architectures)
+**Used by:** SM121, SM110, SM103, SM100, SM90, SM89, SM80
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES
@@ -263,13 +263,13 @@ gpuTargets = [ gpuArchSM ]; # Uses sm_121
 grep -E "gpuArchNum|gpuArchSM|gpuTargets" ../build-pytorch/.flox/pkgs/pytorch-python313-cuda12_8-sm121-*.nix | head -5
 ```
 
-### Pattern Type B: Decimal format (SM120 and older)
+### Pattern Type B: Decimal format (SM120, SM86)
 
-**Used by:** SM120, SM110, SM103, SM100, SM90, SM89, SM86, SM80
+**Used by:** SM120, SM86 only
 
 ```nix
-# PyTorch's CMake accepts numeric format (12.0/9.0/8.9/etc) not sm_XXX
-gpuArchNum = "12.0";       # Or "11.0", "10.3", "10.0", "9.0", "8.9", "8.6", "8.0"
+# PyTorch's CMake accepts numeric format for SM120 and SM86
+gpuArchNum = "12.0";       # Or "8.6" for SM86
 # NO gpuArchSM variable
 gpuTargets = [ gpuArchNum ]; # Uses numeric format directly
 ```
@@ -412,25 +412,25 @@ customPytorch = inputs.build-pytorch.packages.{system}.pytorch-python313-cuda12_
 **Current Status:**
 - ✅ SM121: 6/6 variants created (100%)
 - ✅ SM120: 6/6 variants created (100%)
-- ❌ SM110: 0/6 variants (0%)
-- ❌ SM103: 0/6 variants (0%)
-- ❌ SM100: 0/6 variants (0%)
-- ❌ SM90: 0/6 variants (0%)
-- ❌ SM89: 0/6 variants (0%)
-- ❌ SM86: 0/6 variants (0%)
-- ❌ SM80: 0/6 variants (0%)
-- ❌ CPU-only: 0/6 variants (0%)
+- ✅ SM110: 6/6 variants created (100%)
+- ✅ SM103: 6/6 variants created (100%)
+- ✅ SM100: 6/6 variants created (100%)
+- ✅ SM90: 6/6 variants created (100%)
+- ✅ SM89: 6/6 variants created (100%)
+- ✅ SM86: 6/6 variants created (100%)
+- ✅ SM80: 6/6 variants created (100%)
+- ✅ CPU-only: 6/6 variants created (100%)
 
-**Total Progress: 12/60 (20%)**
+**Total Progress: 60/60 (100%) 🎉 COMPLETE**
 
 **Next Steps:**
-1. Create SM90 variants (H100) for datacenter users
-2. Create SM89 variants (RTX 4090) for gaming/workstation users
-3. Create SM86 variants (RTX 3090) for mainstream users
-4. Create CPU-only variants for development/testing
-5. Create remaining datacenter variants (SM80, SM100, SM103, SM110)
+1. ✅ All variants complete! (60/60 variants implemented)
+2. Test variants on target hardware
+3. Set up proper PyTorch dependency resolution
+4. Publish to FloxHub for team distribution
+5. Document testing procedures and validation results
 
 **Pattern Reference:**
-- SM121: Type A (with gpuArchSM)
-- All others: Type B (without gpuArchSM, decimal format)
+- **Pattern Type A** (with gpuArchSM): SM121, SM110, SM103, SM100, SM90, SM89, SM80
+- **Pattern Type B** (decimal format): SM120, SM86
 - Always verify PyTorch pattern before creating variants!

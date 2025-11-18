@@ -1,21 +1,23 @@
-# TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm121-armv8.2
+# TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + AVX2
+# Package name: torchvision-python313-cuda12_8-sm80-avx2
 
 { python3Packages
 , lib
 , config
 , cudaPackages
 , addDriverRunpath
+, fetchPypi
 }:
 
 let
-  # GPU target: SM121 (DGX Spark - specialized datacenter)
-  gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
-  gpuArchSM = "sm_121";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
+  # GPU target: SM80 (Ampere A100/A30 - Datacenter)
+  gpuArchNum = "80";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
+  gpuArchSM = "sm_80";      # For TORCH_CUDA_ARCH_LIST (with sm_ prefix)
 
-  # CPU optimization: ARMv8.2 with FP16 and dot product support
+  # CPU optimization: AVX2 (broader compatibility)
   cpuFlags = [
-    "-march=armv8.2-a+fp16+dotprod"  # ARMv8.2 with FP16 and dot product
+    "-mavx2"   # AVX2 instruction set
+    "-mfma"    # Fused multiply-add
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
@@ -39,7 +41,7 @@ in
   (python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm121-armv8.2";
+    pname = "torchvision-python313-cuda12_8-sm80-avx2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -53,32 +55,31 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: SM121 (DGX Spark - Specialized Datacenter)"
-      echo "CPU Features: ARMv8.2 + FP16 + Dot Product"
-      echo "CUDA: 12.8 (Compute Capability 12.1)"
+      echo "GPU Target: SM80 (Ampere A100/A30 Datacenter)"
+      echo "CPU Features: AVX2"
+      echo "CUDA: 12.8 (Compute Capability 8.0)"
       echo "CXXFLAGS: $CXXFLAGS"
       echo "Build parallelism: 32 cores max"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA DGX Spark (SM121) + ARMv8.2";
+      description = "TorchVision for NVIDIA Ampere A100/A30 (SM80) + AVX2";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA DGX Spark (SM121, Compute Capability 12.1)
-        - CPU: ARMv8.2 with FP16 and dot product extensions
-        - CUDA: 12.8
+        - GPU: NVIDIA Ampere A100/A30 (SM80) - Datacenter
+        - CPU: x86-64 with AVX2 instruction set
+        - CUDA: 12.8 with compute capability 8.0
         - Python: 3.13
+        - PyTorch: Custom build with matching GPU/CPU configuration
 
         Hardware requirements:
-        - GPU: DGX Spark specialized datacenter GPUs
-        - CPU: AWS Graviton2, NVIDIA Tegra Xavier+
-        - Driver: NVIDIA 570+ required
+        - GPU: NVIDIA A100, A30 datacenter GPUs
+        - CPU: Intel Haswell+ (2013+), AMD Excavator+ (2015+)
+        - Driver: NVIDIA 450+ required
 
-        Choose this if: You have DGX Spark in ARM-based datacenter with
-        Graviton2 or similar ARMv8.2 processors. For newer ARM CPUs,
-        consider the armv9 variant for better performance.
+        Broad CPU compatibility with Ampere datacenter performance.
       '';
-      platforms = [ "aarch64-linux" ];
+      platforms = [ "x86_64-linux" ];
     };
   })

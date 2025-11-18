@@ -30,6 +30,7 @@ let
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
@@ -46,6 +47,7 @@ in
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
