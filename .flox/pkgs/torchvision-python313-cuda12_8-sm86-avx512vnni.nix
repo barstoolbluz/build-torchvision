@@ -1,42 +1,24 @@
 # TorchVision optimized for NVIDIA Ampere RTX 3090/A40 (SM86) + AVX-512 VNNI
 # Package name: torchvision-python313-cuda12_8-sm86-avx512vnni
 
-{ python3Packages
-, lib
-, config
-, cudaPackages
-, addDriverRunpath
-, fetchurl
-}:
+{ pkgs ? import <nixpkgs> {} }:
 
 let
-  # GPU target: SM86 (Ampere RTX 3090/A40)
+  # GPU target
   gpuArchNum = "8.6";
 
-  # CPU optimization: AVX-512 with VNNI (Vector Neural Network Instructions)
+  # CPU optimization
   cpuFlags = [
-    "-mavx512f"    # AVX-512 Foundation
-    "-mavx512dq"   # Doubleword and Quadword instructions
-    "-mavx512vl"   # Vector Length extensions
-    "-mavx512bw"   # Byte and Word instructions
-    "-mavx512vnni" # Vector Neural Network Instructions (INT8 acceleration)
-    "-mfma"        # Fused multiply-add
+    "-mavx512f"
+    "-mavx512dq"
+    "-mavx512vl"
+    "-mavx512bw"
+    "-mavx512vnni"
+    "-mfma"
   ];
 
-  # Pin PyTorch to 2.8.0 for compatibility with TorchVision 0.23.0
-  pytorch_2_8_0 = python3Packages.torch.overrideAttrs (oldAttrs: rec {
-    version = "2.8.0";
-    pname = "torch";
-
-    # Override the source to use PyTorch 2.8.0
-    src = fetchurl {
-      url = "https://github.com/pytorch/pytorch/archive/v${version}.tar.gz";
-      hash = "sha256-0am8mx0mq3hqsk1g99a04a4fdf865g93568qr1f247pl11r2jldl";
-    };
-  });
-
   # Custom PyTorch with matching GPU/CPU configuration
-  customPytorch = (pytorch_2_8_0.override {
+  customPytorch = (pkgs.python3Packages.torch.override {
     cudaSupport = true;
     gpuTargets = [ gpuArchNum ];
   }).overrideAttrs (oldAttrs: {
@@ -45,25 +27,14 @@ let
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
-      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
     '';
   });
 
-  # Pin TorchVision to 0.23.0
-  torchvision_0_23_0 = python3Packages.torchvision.overrideAttrs (oldAttrs: rec {
-    version = "0.23.0";
-    pname = "torchvision";
-
-    src = fetchurl {
-      url = "https://github.com/pytorch/vision/archive/v${version}.tar.gz";
-      hash = "sha256-1d09xwblldgzmzfdlrsyx6mgv939z4yi1hqanm9yx63cs2mr7w85";
-    };
-  });
-
 in
-  (torchvision_0_23_0.override {
+  (pkgs.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm86-avx512vnni";
@@ -73,42 +44,23 @@ in
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
-      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: SM86 (Ampere RTX 3090/A40)"
-      echo "CPU Features: AVX-512 + VNNI"
-      echo "CUDA: 12.8 (Compute Capability 8.6)"
-      echo "PyTorch Version: 2.8.0 (pinned)"
-      echo "TorchVision Version: 0.23.0 (pinned)"
-      echo "CXXFLAGS: $CXXFLAGS"
-      echo "Build parallelism: 32 cores max"
+      echo "GPU Target: 8.6"
+      echo "CPU Features: Optimized"
+      echo "CUDA: Enabled"
+      echo "PyTorch: ${customPytorch.version}"
+      echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision 0.23.0 for NVIDIA Ampere RTX 3090/A40 (SM86) + AVX-512 VNNI";
-      longDescription = ''
-        Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA Ampere RTX 3090/A40 (SM86)
-        - CPU: x86-64 with AVX-512 VNNI instruction set
-        - CUDA: 12.8 with compute capability 8.6
-        - Python: 3.13
-        - PyTorch: 2.8.0 (pinned for compatibility)
-        - TorchVision: 0.23.0 (pinned)
-        - PyTorch: Custom build with matching GPU/CPU configuration
-
-        Hardware requirements:
-        - GPU: NVIDIA RTX 3090, RTX 3080 Ti, A5000, A40
-        - CPU: Intel Cascade Lake+ (2019+), AMD Zen 4+ (2022+)
-        - Driver: NVIDIA 470+ required
-
-        VNNI acceleration for INT8 inference on Ampere.
-      '';
-      platforms = [ "x86_64-linux" ];
+      description = "TorchVision optimized for NVIDIA Ampere RTX 3090/A40 (SM86) + AVX-512 VNNI";
+      platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

@@ -1,43 +1,24 @@
 # TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512 BF16
 # Package name: torchvision-python313-cuda12_8-sm120-avx512bf16
 
-{ python3Packages
-, lib
-, config
-, cudaPackages
-, addDriverRunpath
-, fetchurl
-}:
+{ pkgs ? import <nixpkgs> {} }:
 
 let
-  # GPU target: SM120 (Blackwell architecture - RTX 5090)
-  # PyTorch's CMake accepts numeric format (12.0) not sm_120
+  # GPU target
   gpuArchNum = "12.0";
 
-  # CPU optimization: AVX-512 with BF16 support
+  # CPU optimization
   cpuFlags = [
-    "-mavx512f"    # AVX-512 Foundation
-    "-mavx512dq"   # Doubleword and Quadword instructions
-    "-mavx512vl"   # Vector Length extensions
-    "-mavx512bw"   # Byte and Word instructions
-    "-mavx512bf16" # BF16 (Brain Float16) instructions
-    "-mfma"        # Fused multiply-add
+    "-mavx512f"
+    "-mavx512dq"
+    "-mavx512vl"
+    "-mavx512bw"
+    "-mavx512bf16"
+    "-mfma"
   ];
 
-  # Pin PyTorch to 2.8.0 for compatibility with TorchVision 0.23.0
-  pytorch_2_8_0 = python3Packages.torch.overrideAttrs (oldAttrs: rec {
-    version = "2.8.0";
-    pname = "torch";
-
-    # Override the source to use PyTorch 2.8.0
-    src = fetchurl {
-      url = "https://github.com/pytorch/pytorch/archive/v${version}.tar.gz";
-      hash = "sha256-0am8mx0mq3hqsk1g99a04a4fdf865g93568qr1f247pl11r2jldl";
-    };
-  });
-
   # Custom PyTorch with matching GPU/CPU configuration
-  customPytorch = (pytorch_2_8_0.override {
+  customPytorch = (pkgs.python3Packages.torch.override {
     cudaSupport = true;
     gpuTargets = [ gpuArchNum ];
   }).overrideAttrs (oldAttrs: {
@@ -46,25 +27,14 @@ let
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
-      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
     '';
   });
 
-  # Pin TorchVision to 0.23.0
-  torchvision_0_23_0 = python3Packages.torchvision.overrideAttrs (oldAttrs: rec {
-    version = "0.23.0";
-    pname = "torchvision";
-
-    src = fetchurl {
-      url = "https://github.com/pytorch/vision/archive/v${version}.tar.gz";
-      hash = "sha256-1d09xwblldgzmzfdlrsyx6mgv939z4yi1hqanm9yx63cs2mr7w85";
-    };
-  });
-
 in
-  (torchvision_0_23_0.override {
+  (pkgs.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm120-avx512bf16";
@@ -74,43 +44,23 @@ in
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="$CXXFLAGS ${lib.concatStringsSep " " cpuFlags}"
-      export CFLAGS="$CFLAGS ${lib.concatStringsSep " " cpuFlags}"
+      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
 
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: SM120 (Blackwell: RTX 5090)"
-      echo "CPU Features: AVX-512 + BF16"
-      echo "CUDA: 12.8 (Compute Capability 12.0)"
-      echo "PyTorch Version: 2.8.0 (pinned)"
-      echo "TorchVision Version: 0.23.0 (pinned)"
-      echo "CXXFLAGS: $CXXFLAGS"
-      echo "Build parallelism: 32 cores max"
+      echo "GPU Target: 12.0"
+      echo "CPU Features: Optimized"
+      echo "CUDA: Enabled"
+      echo "PyTorch: ${customPytorch.version}"
+      echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision 0.23.0 for NVIDIA RTX 5090 (SM120, Blackwell) + AVX-512 BF16";
-      longDescription = ''
-        Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA Blackwell architecture (SM120) - RTX 5090
-        - CPU: x86-64 with AVX-512 + BF16 instruction set
-        - CUDA: 12.8
-        - Python: 3.13
-        - PyTorch: 2.8.0 (pinned for compatibility)
-        - TorchVision: 0.23.0 (pinned)
-
-        Hardware requirements:
-        - GPU: RTX 5090, Blackwell architecture GPUs
-        - CPU: Intel Sapphire Rapids+ (2023+), AMD Genoa+ (2022+)
-        - Driver: NVIDIA 570+ required
-
-        Choose this if: You have RTX 5090 with latest datacenter CPUs and
-        need BF16 training acceleration. BF16 provides better numerical
-        stability than FP16 for training workloads.
-      '';
-      platforms = [ "x86_64-linux" ];
+      description = "TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512 BF16";
+      platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })
