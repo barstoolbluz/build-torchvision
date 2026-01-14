@@ -6,6 +6,7 @@
 , config
 , cudaPackages
 , addDriverRunpath
+, fetchurl
 }:
 
 let
@@ -20,9 +21,20 @@ let
     "-mf16c"       # Half-precision conversions
   ];
 
+  # Pin PyTorch to 2.8.0 for compatibility with TorchVision 0.23.0
+  pytorch_2_8_0 = python3Packages.torch.overrideAttrs (oldAttrs: rec {
+    version = "2.8.0";
+    pname = "torch";
+
+    # Override the source to use PyTorch 2.8.0
+    src = fetchurl {
+      url = "https://github.com/pytorch/pytorch/archive/v${version}.tar.gz";
+      hash = "sha256-0am8mx0mq3hqsk1g99a04a4fdf865g93568qr1f247pl11r2jldl";
+    };
+  });
+
   # Custom PyTorch with matching GPU/CPU configuration
-  # TODO: Reference the actual pytorch package from build-pytorch
-  customPytorch = (python3Packages.torch.override {
+  customPytorch = (pytorch_2_8_0.override {
     cudaSupport = true;
     gpuTargets = [ gpuArchNum ];
   }).overrideAttrs (oldAttrs: {
@@ -37,8 +49,19 @@ let
     '';
   });
 
+  # Pin TorchVision to 0.23.0
+  torchvision_0_23_0 = python3Packages.torchvision.overrideAttrs (oldAttrs: rec {
+    version = "0.23.0";
+    pname = "torchvision";
+
+    src = fetchurl {
+      url = "https://github.com/pytorch/vision/archive/v${version}.tar.gz";
+      hash = "sha256-1d09xwblldgzmzfdlrsyx6mgv939z4yi1hqanm9yx63cs2mr7w85";
+    };
+  });
+
 in
-  (python3Packages.torchvision.override {
+  (torchvision_0_23_0.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm120-avx2";
@@ -58,19 +81,23 @@ in
       echo "GPU Target: SM120 (Blackwell: RTX 5090)"
       echo "CPU Features: AVX2"
       echo "CUDA: 12.8 (Compute Capability 12.0)"
+      echo "PyTorch Version: 2.8.0 (pinned)"
+      echo "TorchVision Version: 0.23.0 (pinned)"
       echo "CXXFLAGS: $CXXFLAGS"
       echo "Build parallelism: 32 cores max"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA RTX 5090 (SM120, Blackwell) + AVX2";
+      description = "TorchVision 0.23.0 for NVIDIA RTX 5090 (SM120, Blackwell) + AVX2";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
         - GPU: NVIDIA Blackwell architecture (SM120) - RTX 5090
         - CPU: x86-64 with AVX2 instruction set (broad compatibility)
         - CUDA: 12.8
         - Python: 3.13
+        - PyTorch: 2.8.0 (pinned for compatibility)
+        - TorchVision: 0.23.0 (pinned)
 
         Hardware requirements:
         - GPU: RTX 5090, Blackwell architecture GPUs

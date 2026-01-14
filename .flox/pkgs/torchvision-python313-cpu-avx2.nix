@@ -4,6 +4,7 @@
 { python3Packages
 , lib
 , openblas
+, fetchurl
 }:
 
 let
@@ -14,8 +15,20 @@ let
     "-mf16c"       # Half-precision conversions
   ];
 
+  # Pin PyTorch to 2.8.0 for compatibility with TorchVision 0.23.0
+  pytorch_2_8_0 = python3Packages.torch.overrideAttrs (oldAttrs: rec {
+    version = "2.8.0";
+    pname = "torch";
+
+    # Override the source to use PyTorch 2.8.0
+    src = fetchurl {
+      url = "https://github.com/pytorch/pytorch/archive/v${version}.tar.gz";
+      hash = "sha256-0am8mx0mq3hqsk1g99a04a4fdf865g93568qr1f247pl11r2jldl";
+    };
+  });
+
   # Custom PyTorch with matching CPU configuration
-  customPytorch = (python3Packages.torch.overrideAttrs (oldAttrs: {
+  customPytorch = (pytorch_2_8_0.overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
@@ -32,8 +45,19 @@ let
     '';
   }));
 
+  # Pin TorchVision to 0.23.0
+  torchvision_0_23_0 = python3Packages.torchvision.overrideAttrs (oldAttrs: rec {
+    version = "0.23.0";
+    pname = "torchvision";
+
+    src = fetchurl {
+      url = "https://github.com/pytorch/vision/archive/v${version}.tar.gz";
+      hash = "sha256-1d09xwblldgzmzfdlrsyx6mgv939z4yi1hqanm9yx63cs2mr7w85";
+    };
+  });
+
 in
-  (python3Packages.torchvision.override {
+  (torchvision_0_23_0.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cpu-avx2";
@@ -55,7 +79,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision CPU-only optimized for AVX2";
+      description = "TorchVision 0.23.0 CPU-only optimized for AVX2";
       platforms = [ "x86_64-linux" ];
     };
   })
