@@ -4,6 +4,18 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
+  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
+  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  nixpkgs_pinned = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
+    # You can add the sha256 here once known for reproducibility
+  }) {
+    config = {
+      allowUnfree = true;  # Required for CUDA packages
+      cudaSupport = true;
+    };
+  };
+
   # GPU target
   gpuArchNum = "12.0";
 
@@ -13,7 +25,7 @@ let
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
-  customPytorch = (pkgs.python3Packages.torch.override {
+  customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
     gpuTargets = [ gpuArchNum ];
   }).overrideAttrs (oldAttrs: {
@@ -22,14 +34,14 @@ let
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
-      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
     '';
   });
 
 in
-  (pkgs.python3Packages.torchvision.override {
+  (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm120-armv9";
@@ -39,8 +51,8 @@ in
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
-      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
 
       echo "========================================="

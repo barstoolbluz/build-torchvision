@@ -4,6 +4,18 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
+  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
+  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  nixpkgs_pinned = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
+    # You can add the sha256 here once known for reproducibility
+  }) {
+    config = {
+      allowUnfree = true;  # Required for CUDA packages
+      cudaSupport = true;
+    };
+  };
+
   # CPU optimization
   cpuFlags = [
     "-mavx512f"
@@ -15,28 +27,28 @@ let
   ];
 
   # Custom PyTorch with CPU-only configuration
-  customPytorch = (pkgs.python3Packages.torch.override {
+  customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = false;
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
-    buildInputs = pkgs.lib.filter (p: !(pkgs.lib.hasPrefix "cuda" (p.pname or ""))) oldAttrs.buildInputs
+    buildInputs = nixpkgs_pinned.lib.filter (p: !(nixpkgs_pinned.lib.hasPrefix "cuda" (p.pname or ""))) oldAttrs.buildInputs
                   ++ [pkgs.openblas];
-    nativeBuildInputs = pkgs.lib.filter (p: p.pname or "" != "addDriverRunpath") oldAttrs.nativeBuildInputs;
+    nativeBuildInputs = nixpkgs_pinned.lib.filter (p: p.pname or "" != "addDriverRunpath") oldAttrs.nativeBuildInputs;
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export USE_CUDA=0
       export BLAS=OpenBLAS
-      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
-      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
     '';
   });
 
 in
-  (pkgs.python3Packages.torchvision.override {
+  (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cpu-avx512vnni";
@@ -46,8 +58,8 @@ in
     requiredSystemFeatures = [ "big-parallel" ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export CXXFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
-      export CFLAGS="${pkgs.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
 
       echo "========================================="
