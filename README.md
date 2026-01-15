@@ -12,6 +12,35 @@ This project provides **targeted TorchVision builds** that are optimized for spe
 - **Consistent stack** - TorchVision and PyTorch built with same optimizations
 - **Reproducible** - Managed with Flox/Nix for consistent builds
 
+## Version Compatibility Strategy
+
+For building older or specific versions of TorchVision that require compatible PyTorch versions:
+
+### Nixpkgs Pinning Approach
+When the default nixpkgs has incompatible versions (e.g., PyTorch 2.8.0 with TorchVision 0.24.1), we pin nixpkgs to a specific commit that contains compatible versions:
+
+```nix
+let
+  # Pin nixpkgs to specific commit with compatible versions
+  nixpkgs_pinned = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/COMMIT_HASH.tar.gz";
+  }) {
+    config = {
+      allowUnfree = true;  # Required for CUDA packages
+      cudaSupport = true;
+    };
+  };
+in
+  # Use nixpkgs_pinned.python3Packages instead of pkgs.python3Packages
+```
+
+**Current pinning**: Commit `fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3` provides PyTorch 2.8.0 and TorchVision 0.23.0 compatibility.
+
+To find compatible versions:
+1. Search nixpkgs history for commits containing both packages at desired versions
+2. Update all nix expressions to use the pinned nixpkgs
+3. Test builds to verify compatibility
+
 ## Current Status
 
 **✅ 60/60 variants implemented (100%) 🎉 COMPLETE**
