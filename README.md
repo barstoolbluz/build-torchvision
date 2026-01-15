@@ -564,11 +564,11 @@ This project is a companion to `../build-pytorch/` and follows the same:
 
 ## Version Information
 
-- **TorchVision**: Latest from nixpkgs (tracks PyTorch version)
+- **TorchVision**: 0.24.1 (from nixpkgs)
+- **PyTorch**: 2.9.1 (from nixpkgs, compatible with TorchVision 0.24.1)
 - **Python**: 3.13
 - **CUDA**: 12.8
 - **Platform**: Linux (x86_64-linux, aarch64-linux)
-- **PyTorch compatibility**: TorchVision 0.21+ requires PyTorch 2.7+
 
 ## Troubleshooting
 
