@@ -1,5 +1,5 @@
 # TorchVision optimized for NVIDIA Blackwell B300 (SM103) + ARMv8.2
-# Package name: torchvision-python313-cuda12_9-sm103-armv8.2
+# Package name: torchvision-python313-cuda12_9-sm103-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -45,7 +45,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_9-sm103-armv8.2";
+    pname = "torchvision-python313-cuda12_9-sm103-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
