@@ -28,7 +28,6 @@ let
   # Custom PyTorch with matching GPU/CPU configuration
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
-    cudnnSupport = false;   # cuDNN 9.11+ dropped SM61 support
     gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
@@ -53,6 +52,8 @@ let
       export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
 
+      # cuDNN 9.11+ dropped SM < 7.5 support — disable for SM61
+      export USE_CUDNN=0
       # FBGEMM hard-requires AVX2 with no fallback — disable entirely
       export USE_FBGEMM=0
       # oneDNN/MKLDNN compiles AVX2/AVX512 dispatch variants internally
