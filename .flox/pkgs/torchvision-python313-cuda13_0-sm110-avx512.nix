@@ -1,11 +1,11 @@
-# TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm80-armv8.2
+# TorchVision optimized for NVIDIA DRIVE Thor (SM110) + AVX-512
+# Package name: torchvision-python313-cuda13_0-sm110-avx512
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
-  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  # Import nixpkgs at a specific revision with CUDA 13.0 (required for SM110)
+  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 13.0
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
     # You can add the sha256 here once known for reproducibility
@@ -17,12 +17,16 @@ let
   };
 
   # GPU target
-  gpuArchNum = "80";
-  gpuArchSM = "sm_80";
+  gpuArchNum = "110";
+  gpuArchSM = "sm_110";
 
   # CPU optimization
   cpuFlags = [
-    "-march=armv8.2-a+fp16+dotprod"
+    "-mavx512f"
+    "-mavx512dq"
+    "-mavx512vl"
+    "-mavx512bw"
+    "-mfma"
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
@@ -45,7 +49,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm80-armv8.2";
+    pname = "torchvision-python313-cuda13_0-sm110-avx512";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -59,7 +63,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_80"
+      echo "GPU Target: sm_110"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -68,7 +72,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + ARMv8.2";
+      description = "TorchVision optimized for NVIDIA DRIVE Thor (SM110) + AVX-512";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })
