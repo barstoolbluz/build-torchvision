@@ -2,7 +2,9 @@
 
 ## Choosing Your Variant
 
-**60 variants complete** (60/60 implemented - 100% ✅). Choose based on your hardware to match your PyTorch variant.
+**49 variants complete** on `main` branch (49/49 implemented - 100% ✅). Choose based on your hardware to match your PyTorch variant.
+
+> **Note:** SM103 and SM110 variants have been moved to CUDA-version-specific branches (`cuda-12_9` and `cuda-13_0` respectively). Check out the appropriate branch to build those variants.
 
 **IMPORTANT:** TorchVision requires a matching PyTorch variant. Install PyTorch first from `../build-pytorch/`.
 
@@ -18,8 +20,8 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader
 |----------|-------------|--------------|-----------------|--------|
 | DGX Spark | 12.1 | SM121 | `torchvision-python313-cuda12_8-sm121-avx512` | ✅ Available (6 variants) |
 | RTX 5090 | 12.0 | SM120 | `torchvision-python313-cuda12_8-sm120-avx512` | ✅ Available (6 variants) |
-| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | ✅ Available (6 variants) |
-| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | ✅ Available (6 variants) |
+| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | See `cuda-13_0` branch |
+| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | See `cuda-12_9` branch |
 | B100, B200 | 10.0 | SM100 | `torchvision-python313-cuda12_8-sm100-avx512` | ✅ Available (6 variants) |
 | H100, L40S | 9.0 | SM90 | `torchvision-python313-cuda12_8-sm90-avx512` | ✅ Available (6 variants) |
 | RTX 4090, L40 | 8.9 | SM89 | `torchvision-python313-cuda12_8-sm89-avx512` | ✅ Available (6 variants) |
@@ -43,7 +45,9 @@ lscpu | grep -E 'avx512|sve'
 
 ## Current Status
 
-### Available Variants (60/60) ✅ COMPLETE
+### Available Variants (49/49 on main) ✅ COMPLETE
+
+> **Note:** SM103 (6 variants) moved to `cuda-12_9` branch. SM110 (6 variants) moved to `cuda-13_0` branch.
 
 **SM121 (DGX Spark) - 6 variants:**
 - `torchvision-python313-cuda12_8-sm121-avx2` (x86_64)
@@ -61,9 +65,9 @@ lscpu | grep -E 'avx512|sve'
 - `torchvision-python313-cuda12_8-sm120-armv8.2` (aarch64)
 - `torchvision-python313-cuda12_8-sm120-armv9` (aarch64)
 
-**Plus 48 additional variants** for SM110, SM103, SM100, SM90, SM89, SM86, SM80, and CPU-only builds.
+**Plus 36 additional variants** for SM100, SM90, SM89, SM86, SM80, and CPU-only builds.
 
-See **BUILD_MATRIX.md** for the complete list of all 60 variants.
+See **BUILD_MATRIX.md** for the complete list of all 49 variants on `main`. SM103 and SM110 variants are available on their respective CUDA-version branches.
 
 ## Building TorchVision Variants
 
@@ -409,7 +413,7 @@ See the full documentation:
 
 **Problem:** TorchVision variant doesn't exist yet.
 
-**Solution:** All 60 variants are now complete. Check that you're using the correct package name format. See `BUILD_MATRIX.md` for the full list of available variants.
+**Solution:** All 49 variants on `main` are complete. For SM103 or SM110, check out the `cuda-12_9` or `cuda-13_0` branch respectively. See `BUILD_MATRIX.md` for the full list of available variants.
 
 ### Issue: "PyTorch dependency not found"
 
@@ -441,8 +445,8 @@ Then use the matching pattern for TorchVision.
 |--------------|-----|---------|--------|-----------------|
 | SM121 | DGX Spark | Type A (sm_121) | ✅ Available | `torchvision-python313-cuda12_8-sm121-avx512` |
 | SM120 | RTX 5090 | Type B (12.0) | ✅ Available | `torchvision-python313-cuda12_8-sm120-avx512` |
-| SM110 | DRIVE Thor | Type A (sm_110) | ✅ Available | `torchvision-python313-cuda12_8-sm110-avx512` |
-| SM103 | B300 | Type A (sm_103) | ✅ Available | `torchvision-python313-cuda12_8-sm103-avx512` |
+| SM110 | DRIVE Thor | Type A (sm_110) | See `cuda-13_0` branch | `torchvision-python313-cuda12_8-sm110-avx512` |
+| SM103 | B300 | Type A (sm_103) | See `cuda-12_9` branch | `torchvision-python313-cuda12_8-sm103-avx512` |
 | SM100 | B100/B200 | Type A (sm_100) | ✅ Available | `torchvision-python313-cuda12_8-sm100-avx512` |
 | SM90 | H100/L40S | Type A (sm_90) | ✅ Available | `torchvision-python313-cuda12_8-sm90-avx512` |
 | SM89 | RTX 4090 | Type A (sm_89) | ✅ Available | `torchvision-python313-cuda12_8-sm89-avx512` |

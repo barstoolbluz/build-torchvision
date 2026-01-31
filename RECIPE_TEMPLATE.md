@@ -42,7 +42,7 @@ This document provides **mechanical, copy-paste templates** for creating any Tor
 
 ### Pattern Type A: sm_XXX format
 
-Used by: **SM121, SM110, SM103, SM100, SM90, SM89, SM80** (7 architectures)
+Used by: **SM121, SM100, SM90, SM89, SM80** (5 architectures on main branch)
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
@@ -74,7 +74,7 @@ grep -E "gpuArchNum|gpuArchSM|gpuTargets" ../build-pytorch/.flox/pkgs/pytorch-{P
 
 ## GPU Build Template
 
-### Template for SM121, SM110, SM103, SM100, SM90, SM89, SM80 (Pattern Type A)
+### Template for SM121, SM100, SM90, SM89, SM80 (Pattern Type A)
 
 **File:** `.flox/pkgs/torchvision-{PYTHON}-cuda{CUDA_MAJOR}_{CUDA_MINOR}-{GPU_ARCH}-{CPU_ISA}.nix`
 
@@ -355,21 +355,21 @@ in
 
 ### GPU Architectures
 
-**Status:** All 9 GPU architectures implemented (60/60 variants created - 100% complete ✅).
+**Status:** 7 GPU architectures on main branch + SM61 legacy + 2 on CUDA-specific branches.
 
 | Variable | {GPU_ARCH} | {GPU_ARCH_UPPER} | {GPU_ARCH_DECIMAL} | {GPU_DESC} | Pattern | Status |
 |----------|------------|------------------|-------------------|------------|---------|--------|
 | SM121 | `sm121` | `SM121` | `12.1` | `NVIDIA DGX Spark (Specialized Datacenter)` | Type A | ✅ Done (6/6) |
 | SM120 | `sm120` | `SM120` | `12.0` | `NVIDIA Blackwell (RTX 5090)` | Type B | ✅ Done (6/6) |
-| SM110 | `sm110` | `SM110` | `11.0` | `NVIDIA DRIVE Thor, Orin+ (Automotive)` | Type A | ✅ Done (6/6) |
-| SM103 | `sm103` | `SM103` | `10.3` | `NVIDIA Blackwell B300 (Datacenter)` | Type A | ✅ Done (6/6) |
+| SM110 | `sm110` | `SM110` | `11.0` | `NVIDIA DRIVE Thor, Orin+ (Automotive)` | Type A | Moved to `cuda-13_0` branch |
+| SM103 | `sm103` | `SM103` | `10.3` | `NVIDIA Blackwell B300 (Datacenter)` | Type A | Moved to `cuda-12_9` branch |
 | SM100 | `sm100` | `SM100` | `10.0` | `NVIDIA Blackwell B100/B200 (Datacenter)` | Type A | ✅ Done (6/6) |
 | SM90 | `sm90` | `SM90` | `9.0` | `NVIDIA Hopper (H100, L40S)` | Type A | ✅ Done (6/6) |
 | SM89 | `sm89` | `SM89` | `8.9` | `NVIDIA Ada Lovelace (RTX 4090, L40)` | Type A | ✅ Done (6/6) |
 | SM86 | `sm86` | `SM86` | `8.6` | `NVIDIA Ampere (RTX 3090, A40, A5000)` | Type B | ✅ Done (6/6) |
 | SM80 | `sm80` | `SM80` | `8.0` | `NVIDIA Ampere Datacenter (A100, A30)` | Type A | ✅ Done (6/6) |
 
-**Pattern Type A** (SM121, SM110, SM103, SM100, SM90, SM89, SM80): Uses `gpuArchSM = "sm_XXX"` and `gpuTargets = [ gpuArchSM ]`
+**Pattern Type A** (SM121, SM100, SM90, SM89, SM80): Uses `gpuArchSM = "sm_XXX"` and `gpuTargets = [ gpuArchSM ]`
 **Pattern Type B** (SM120, SM86): Uses `gpuArchNum = "{GPU_ARCH_DECIMAL}"` and `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)
 
 ### GPU Architecture Extra Variables
@@ -580,7 +580,7 @@ To create a new variant:
 ## Notes
 
 - **CRITICAL:** Always check the corresponding PyTorch pattern before creating TorchVision variants!
-  - Pattern Type A (SM121, SM110, SM103, SM100, SM90, SM89, SM80): with gpuArchSM
+  - Pattern Type A (SM121, SM100, SM90, SM89, SM80): with gpuArchSM
   - Pattern Type B (SM120, SM86): without gpuArchSM
 - TorchVision depends on a matching PyTorch variant with the same GPU/CPU configuration
 - All GPU builds include custom PyTorch with matching optimizations
@@ -590,7 +590,8 @@ To create a new variant:
 - ARM GPU builds should use `platforms = [ "aarch64-linux" ]`
 - x86-64 GPU builds should use `platforms = [ "x86_64-linux" ]`
 - CPU-only builds can use both platforms for maximum compatibility
-- **Current Status:** All 9 GPU architectures complete - 60/60 variants created (100% ✅)
+- **Current Status:** 7 GPU architectures on main (SM80, SM86, SM89, SM90, SM100, SM120, SM121) + SM61 legacy
+- SM103 requires CUDA 12.9 (see `cuda-12_9` branch). SM110 requires CUDA 13.0 (see `cuda-13_0` branch).
 
 ---
 

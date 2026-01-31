@@ -28,6 +28,7 @@ let
   # Custom PyTorch with matching GPU/CPU configuration
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
+    cudnnSupport = false;   # cuDNN 9.11+ dropped SM61 support
     gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
@@ -83,8 +84,8 @@ in
         - CPU: Intel Sandy Bridge+ (2011+), AMD Bulldozer+ (2011+)
         - Driver: NVIDIA 390+ required
 
-        Note: cuDNN 9.11+ dropped support for SM < 7.5. If cuDNN operations
-        fail at runtime, this is a known upstream limitation for Pascal GPUs.
+        Note: cuDNN is disabled in this build because cuDNN 9.11+ dropped
+        support for SM < 7.5. Core CUDA operations work correctly.
       '';
       platforms = [ "x86_64-linux" ];
     };
