@@ -19,10 +19,10 @@ let
   gpuArchNum = "61";
   gpuArchSM = "6.1";  # Dot notation required for older archs in TORCH_CUDA_ARCH_LIST
 
-  # CPU optimization: AVX (maximum compatibility)
+  # CPU optimization: AVX only (no FMA — Ivy Bridge lacks FMA3)
   cpuFlags = [
     "-mavx"
-    "-mfma"
+    "-mno-fma"
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
