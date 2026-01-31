@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA Hopper H100/L40S (SM90) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm90-armv8.2
+# TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2
+# Package name: torchvision-python313-cuda12_8-sm121-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -17,8 +17,8 @@ let
   };
 
   # GPU target
-  gpuArchNum = "90";
-  gpuArchSM = "sm_90";
+  gpuArchNum = "121";
+  gpuArchSM = "sm_121";
 
   # CPU optimization
   cpuFlags = [
@@ -45,7 +45,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm90-armv8.2";
+    pname = "torchvision-python313-cuda12_8-sm121-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -59,7 +59,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_90"
+      echo "GPU Target: sm_121"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -68,7 +68,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Hopper H100/L40S (SM90) + ARMv8.2";
+      description = "TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

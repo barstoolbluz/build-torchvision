@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm80-armv8.2
+# TorchVision optimized for NVIDIA Blackwell B100/B200 (SM100) + ARMv8.2
+# Package name: torchvision-python313-cuda12_8-sm100-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -17,8 +17,8 @@ let
   };
 
   # GPU target
-  gpuArchNum = "80";
-  gpuArchSM = "sm_80";
+  gpuArchNum = "100";
+  gpuArchSM = "sm_100";
 
   # CPU optimization
   cpuFlags = [
@@ -45,7 +45,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm80-armv8.2";
+    pname = "torchvision-python313-cuda12_8-sm100-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -59,7 +59,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_80"
+      echo "GPU Target: sm_100"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -68,7 +68,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + ARMv8.2";
+      description = "TorchVision optimized for NVIDIA Blackwell B100/B200 (SM100) + ARMv8.2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

@@ -1,5 +1,5 @@
 # TorchVision optimized for NVIDIA Ampere RTX 3090/A40 (SM86) + ARMv8.2
-# Package name: torchvision-python313-cuda12_8-sm86-armv8.2
+# Package name: torchvision-python313-cuda12_8-sm86-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -44,7 +44,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm86-armv8.2";
+    pname = "torchvision-python313-cuda12_8-sm86-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
