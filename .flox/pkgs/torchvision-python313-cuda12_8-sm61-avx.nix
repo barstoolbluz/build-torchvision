@@ -35,10 +35,31 @@ let
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
+    # Prevent ATen from compiling AVX2/AVX512 dispatch kernels.
+    # FindAVX.cmake probe-compiles with -mavx2 and succeeds (the compiler
+    # supports it), then Codegen.cmake force-compiles kernel TUs with -mavx2
+    # regardless of project CXXFLAGS.  Lying to cmake here restricts the
+    # dispatch codegen to AVX + baseline only.
+    cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
+      "-DCXX_AVX2_FOUND=FALSE"
+      "-DC_AVX2_FOUND=FALSE"
+      "-DCXX_AVX512_FOUND=FALSE"
+      "-DC_AVX512_FOUND=FALSE"
+      "-DCAFFE2_COMPILER_SUPPORTS_AVX512_EXTENSIONS=OFF"
+    ];
+
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
       export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
+
+      # FBGEMM hard-requires AVX2 with no fallback — disable entirely
+      export USE_FBGEMM=0
+      # oneDNN/MKLDNN compiles AVX2/AVX512 dispatch variants internally
+      export USE_MKLDNN=0
+      export USE_MKLDNN_CBLAS=0
+      # Force NNPACK to portable SIMD backend
+      export NNPACK_BACKEND=psimd
     '';
   });
 
@@ -84,8 +105,9 @@ in
         - CPU: Intel Sandy Bridge+ (2011+), AMD Bulldozer+ (2011+)
         - Driver: NVIDIA 390+ required
 
-        Note: cuDNN is disabled in this build because cuDNN 9.11+ dropped
-        support for SM < 7.5. Core CUDA operations work correctly.
+        Note: cuDNN is disabled because cuDNN 9.11+ dropped SM < 7.5 support.
+        FBGEMM, MKLDNN, and ATen AVX2/AVX512 dispatch are also disabled to
+        prevent illegal-instruction crashes on AVX-only CPUs.
       '';
       platforms = [ "x86_64-linux" ];
     };
