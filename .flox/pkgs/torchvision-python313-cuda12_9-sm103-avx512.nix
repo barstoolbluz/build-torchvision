@@ -1,11 +1,11 @@
-# TorchVision CPU-only optimized for AVX-512 + BF16
-# Package name: torchvision-python313-cpu-avx512bf16
+# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512
+# Package name: torchvision-python313-cuda12_9-sm103-avx512
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
-  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
     # You can add the sha256 here once known for reproducibility
@@ -16,31 +16,29 @@ let
     };
   };
 
+  # GPU target
+  gpuArchNum = "103";
+  gpuArchSM = "sm_103";
+
   # CPU optimization
   cpuFlags = [
     "-mavx512f"
     "-mavx512dq"
     "-mavx512vl"
     "-mavx512bw"
-    "-mavx512bf16"
     "-mfma"
   ];
 
-  # Custom PyTorch with CPU-only configuration
+  # Custom PyTorch with matching GPU/CPU configuration
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
-    cudaSupport = false;
+    cudaSupport = true;
+    gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
-    buildInputs = nixpkgs_pinned.lib.filter (p: !(nixpkgs_pinned.lib.hasPrefix "cuda" (p.pname or ""))) oldAttrs.buildInputs
-                  ++ [pkgs.openblas];
-    nativeBuildInputs = nixpkgs_pinned.lib.filter (p: p.pname or "" != "addDriverRunpath") oldAttrs.nativeBuildInputs;
-
     preConfigure = (oldAttrs.preConfigure or "") + ''
-      export USE_CUDA=0
-      export BLAS=OpenBLAS
       export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
       export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
@@ -51,7 +49,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cpu-avx512bf16";
+    pname = "torchvision-python313-cuda12_9-sm103-avx512";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -65,16 +63,16 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: None (CPU-only build)"
+      echo "GPU Target: sm_103"
       echo "CPU Features: Optimized"
-      echo "BLAS Backend: OpenBLAS"
+      echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision CPU-only optimized for AVX-512 + BF16";
-      platforms = [ "x86_64-linux" ];
+      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512";
+      platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

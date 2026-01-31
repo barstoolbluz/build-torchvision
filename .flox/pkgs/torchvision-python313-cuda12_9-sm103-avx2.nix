@@ -1,11 +1,11 @@
-# TorchVision optimized for NVIDIA Ampere RTX 3090/A40 (SM86) + ARMv9
-# Package name: torchvision-python313-cuda12_8-sm86-armv9
+# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX2
+# Package name: torchvision-python313-cuda12_9-sm103-avx2
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
-  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
     # You can add the sha256 here once known for reproducibility
@@ -17,17 +17,20 @@ let
   };
 
   # GPU target
-  gpuArchNum = "8.6";
+  gpuArchNum = "103";
+  gpuArchSM = "sm_103";
 
   # CPU optimization
   cpuFlags = [
-    "-march=armv9-a+sve+sve2"
+    "-mavx2"
+    "-mfma"
+    "-mf16c"
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
-    gpuTargets = [ gpuArchNum ];
+    gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -44,7 +47,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm86-armv9";
+    pname = "torchvision-python313-cuda12_9-sm103-avx2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -58,7 +61,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: 8.6"
+      echo "GPU Target: sm_103"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -67,7 +70,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Ampere RTX 3090/A40 (SM86) + ARMv9";
+      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

@@ -1,11 +1,11 @@
-# TorchVision optimized for NVIDIA Blackwell B100/B200 (SM100) + AVX-512 VNNI
-# Package name: torchvision-python313-cuda12_8-sm100-avx512vnni
+# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16
+# Package name: torchvision-python313-cuda12_9-sm103-avx512bf16
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision where PyTorch 2.8.0 and TorchVision 0.23.0 are compatible
-  # This commit has TorchVision 0.23.0 and PyTorch 2.8.0
+  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
     # You can add the sha256 here once known for reproducibility
@@ -17,8 +17,8 @@ let
   };
 
   # GPU target
-  gpuArchNum = "100";
-  gpuArchSM = "sm_100";
+  gpuArchNum = "103";
+  gpuArchSM = "sm_103";
 
   # CPU optimization
   cpuFlags = [
@@ -26,7 +26,7 @@ let
     "-mavx512dq"
     "-mavx512vl"
     "-mavx512bw"
-    "-mavx512vnni"
+    "-mavx512bf16"
     "-mfma"
   ];
 
@@ -50,7 +50,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm100-avx512vnni";
+    pname = "torchvision-python313-cuda12_9-sm103-avx512bf16";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -64,7 +64,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_100"
+      echo "GPU Target: sm_103"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -73,7 +73,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Blackwell B100/B200 (SM100) + AVX-512 VNNI";
+      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })
