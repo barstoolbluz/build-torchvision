@@ -611,7 +611,7 @@ build-torchvision/
 │       ├── torchvision-python313-cuda12_8-sm89-*.nix   # 6 SM89 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm86-*.nix   # 6 SM86 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm80-*.nix   # 6 SM80 variants ✅
-│       ├── torchvision-python313-cuda12_8-sm61-avx.nix # 1 SM61 variant (Pascal, cuDNN+NNPACK disabled) ✅
+│       ├── torchvision-python313-cuda12_8-sm61-avx-no-nnpack.nix # 1 SM61 variant (Pascal, cuDNN+NNPACK disabled) ✅
 │       └── torchvision-python313-cpu-*.nix             # 6 CPU-only variants ✅
 ├── .git/                 # Git repository
 ├── README.md             # This file
