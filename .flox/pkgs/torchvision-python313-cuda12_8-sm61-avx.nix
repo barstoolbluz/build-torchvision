@@ -73,7 +73,8 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm61-avx";
+    pname = "torchvision-python313-cuda12_8-sm61-avx-no-nnpack";
+    version = (oldAttrs.version or "0.0.0") + "-no-nnpack";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];

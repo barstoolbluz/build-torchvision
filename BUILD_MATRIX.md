@@ -235,9 +235,9 @@ gpuTargets = [ gpuArchNum ];
 
 **GPU:** NVIDIA Pascal (GTX 1070, 1080, 1080 Ti)
 **Pattern:** Dot notation (`gpuArchSM = "6.1"`)
-**Note:** cuDNN 9.11+ dropped support for SM < 7.5. cuDNN-accelerated operations may fail at runtime.
+**Note:** cuDNN 9.11+ dropped support for SM < 7.5; NNPACK requires AVX2+FMA3. Both are disabled for SM61-AVX builds.
 
-- `torchvision-python313-cuda12_8-sm61-avx` (x86_64)
+- `torchvision-python313-cuda12_8-sm61-avx-no-nnpack` (x86_64)
 
 **GPU Pattern (SM61):**
 ```nix
@@ -303,7 +303,7 @@ gpuTargets = [ gpuArchSM ]; # Uses "6.1"
 
 **Why this differs:** PyTorch's CMake/TORCH_CUDA_ARCH_LIST expects dot notation (e.g., `"6.1"`, `"7.0"`, `"7.5"`) for older compute capabilities. The `sm_XXX` format (Type A) is used by newer architectures (SM80+).
 
-**cuDNN caveat:** cuDNN 9.11+ dropped support for SM < 7.5. Builds for Pascal (SM61) and older will work for core PyTorch/TorchVision operations but cuDNN-accelerated ops may fail at runtime.
+**cuDNN/NNPACK caveat:** cuDNN 9.11+ dropped support for SM < 7.5; NNPACK requires AVX2+FMA3. Both are disabled for SM61-AVX builds. Core PyTorch/TorchVision operations work normally.
 
 ### Before Creating Variants: ALWAYS CHECK PATTERN!
 
@@ -345,7 +345,7 @@ gpuTargets = [ gpuArchSM ]; # Uses "6.1"
    | RTX 4090 | 570+ | `torchvision-python313-cuda12_8-sm89-avx512` |
    | RTX 3090 | 570+ | `torchvision-python313-cuda12_8-sm86-avx2` |
    | A100 | 570+ | `torchvision-python313-cuda12_8-sm80-avx512` |
-   | GTX 1070/1080/1080 Ti | 390+ | `torchvision-python313-cuda12_8-sm61-avx` (cuDNN limited) |
+   | GTX 1070/1080/1080 Ti | 390+ | `torchvision-python313-cuda12_8-sm61-avx-no-nnpack` (cuDNN+NNPACK disabled) |
    | No GPU | Any | `torchvision-python313-cpu-avx2` |
 
 4. **Check CPU capabilities (for AVX-512 builds):**

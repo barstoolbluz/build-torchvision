@@ -55,7 +55,7 @@ To find compatible versions:
 | SM89 (RTX 4090) | 6/6 | ✅ Complete |
 | SM86 (RTX 3090) | 6/6 | ✅ Complete |
 | SM80 (A100/A30) | 6/6 | ✅ Complete |
-| SM61 (GTX 1070/1080 Ti) | 1 | ✅ AVX variant (cuDNN disabled) |
+| SM61 (GTX 1070/1080 Ti) | 1 | ✅ AVX variant (cuDNN, NNPACK disabled) |
 
 **Total: 49 variants on main** (SM103 and SM110 moved to dedicated CUDA branches)
 
@@ -121,7 +121,7 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 49 var
 - SM89 (Ada Lovelace RTX 4090/L40) - 6 variants ✅
 - SM86 (Ampere RTX 3090/A40) - 6 variants ✅
 - SM80 (Ampere Datacenter A100/A30) - 6 variants ✅
-- SM61 (Pascal GTX 1070/1080 Ti) - 1 variant (AVX) ✅
+- SM61 (Pascal GTX 1070/1080 Ti) - 1 variant (AVX, NNPACK disabled) ✅
 
 ## GPU Architecture Reference
 
@@ -188,7 +188,7 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 49 var
 - Driver: NVIDIA 390+
 - Pattern: Type C (uses `gpuArchSM = "6.1"` — dot notation required for older architectures)
 - Features: CUDA cores, no Tensor cores
-- **Note:** cuDNN 9.11+ dropped support for SM < 7.5. cuDNN-accelerated operations may fail at runtime on Pascal GPUs.
+- **Note:** cuDNN 9.11+ dropped support for SM < 7.5; NNPACK requires AVX2+FMA3. Both are disabled for SM61-AVX builds.
 
 ## CPU Variant Guide
 
@@ -256,7 +256,7 @@ nvidia-smi --query-gpu=compute_cap --format=csv,noheader
 | RTX 4090, RTX 4080, RTX 4070 series, L4, L40 | 8.9 | **SM89** | ✅ Available |
 | RTX 3090, RTX 3090 Ti, RTX 3080 Ti, A5000, A40 | 8.6 | **SM86** | ✅ Available |
 | A100, A30 | 8.0 | **SM80** | ✅ Available |
-| GTX 1070, GTX 1080, GTX 1080 Ti | 6.1 | **SM61** | ✅ Available (AVX only, cuDNN disabled) |
+| GTX 1070, GTX 1080, GTX 1080 Ti | 6.1 | **SM61** | ✅ Available (AVX only, cuDNN+NNPACK disabled) |
 
 **3. Which CPU ISA should you use?**
 ```bash
@@ -611,7 +611,7 @@ build-torchvision/
 │       ├── torchvision-python313-cuda12_8-sm89-*.nix   # 6 SM89 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm86-*.nix   # 6 SM86 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm80-*.nix   # 6 SM80 variants ✅
-│       ├── torchvision-python313-cuda12_8-sm61-avx.nix # 1 SM61 variant (Pascal, cuDNN disabled) ✅
+│       ├── torchvision-python313-cuda12_8-sm61-avx.nix # 1 SM61 variant (Pascal, cuDNN+NNPACK disabled) ✅
 │       └── torchvision-python313-cpu-*.nix             # 6 CPU-only variants ✅
 ├── .git/                 # Git repository
 ├── README.md             # This file
