@@ -75,6 +75,7 @@ in
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda12_8-sm61-avx-no-nnpack";
     version = (oldAttrs.version or "0.0.0") + "-no-nnpack";
+    __intentionallyOverridingVersion = true;
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
