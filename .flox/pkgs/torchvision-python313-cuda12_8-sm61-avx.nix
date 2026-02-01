@@ -48,6 +48,8 @@ let
       "-DCXX_AVX512_FOUND=FALSE"
       "-DC_AVX512_FOUND=FALSE"
       "-DCAFFE2_COMPILER_SUPPORTS_AVX512_EXTENSIONS=OFF"
+      # NNPACK requires AVX2+FMA3 — disable for AVX-only builds
+      "-DUSE_NNPACK=OFF"
     ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
@@ -62,8 +64,8 @@ let
       # oneDNN/MKLDNN compiles AVX2/AVX512 dispatch variants internally
       export USE_MKLDNN=0
       export USE_MKLDNN_CBLAS=0
-      # Force NNPACK to portable SIMD backend
-      export NNPACK_BACKEND=psimd
+      # NNPACK requires AVX2+FMA3 — disable entirely for AVX-only builds
+      export USE_NNPACK=0
     '';
   });
 
