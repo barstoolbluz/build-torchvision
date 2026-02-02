@@ -103,8 +103,8 @@ Build Variant = f(Python_Version, GPU_Architecture, CPU_ISA, CUDA_Toolkit)
 
 ### Total Build Matrix
 
-**Total implemented variants (main branch):** 49
-- **GPU builds (SM80–SM121, excluding SM103/SM110):** 42 (7 GPU architectures × 6 CPU ISAs)
+**Total implemented variants (main branch):** 44
+- **GPU builds (SM80–SM120, SM61):** 37 (6 GPU architectures × 6 CPU ISAs + 1 SM61)
   - x86-64: 28 (7 GPU × 4 CPU ISAs)
   - ARM: 14 (7 GPU × 2 CPU ISAs)
 - **GPU build (SM61 Pascal):** 1 (AVX only)

@@ -20,8 +20,8 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader
 |----------|-------------|--------------|-----------------|--------|
 | DGX Spark | 12.1 | SM121 | `torchvision-python313-cuda13_0-sm121-avx512` | ✅ Available (6 variants, on `cuda-13_0` branch) |
 | RTX 5090 | 12.0 | SM120 | `torchvision-python313-cuda12_8-sm120-avx512` | ✅ Available (6 variants) |
-| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | See `cuda-13_0` branch |
-| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | See `cuda-12_9` branch |
+| NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda13_0-sm110-avx512` | See `cuda-13_0` branch |
+| B300 | 10.3 | SM103 | `torchvision-python313-cuda12_9-sm103-avx512` | See `cuda-12_9` branch |
 | B100, B200 | 10.0 | SM100 | `torchvision-python313-cuda12_8-sm100-avx512` | ✅ Available (6 variants) |
 | H100, L40S | 9.0 | SM90 | `torchvision-python313-cuda12_8-sm90-avx512` | ✅ Available (6 variants) |
 | RTX 4090, L40 | 8.9 | SM89 | `torchvision-python313-cuda12_8-sm89-avx512` | ✅ Available (6 variants) |
@@ -445,8 +445,8 @@ Then use the matching pattern for TorchVision.
 |--------------|-----|---------|--------|-----------------|
 | SM121 | DGX Spark | Type A (sm_121) | ✅ Available (cuda-13_0 branch) | `torchvision-python313-cuda13_0-sm121-avx512` |
 | SM120 | RTX 5090 | Type B (12.0) | ✅ Available | `torchvision-python313-cuda12_8-sm120-avx512` |
-| SM110 | DRIVE Thor | Type A (sm_110) | See `cuda-13_0` branch | `torchvision-python313-cuda12_8-sm110-avx512` |
-| SM103 | B300 | Type A (sm_103) | See `cuda-12_9` branch | `torchvision-python313-cuda12_8-sm103-avx512` |
+| SM110 | DRIVE Thor | Type A (sm_110) | See `cuda-13_0` branch | `torchvision-python313-cuda13_0-sm110-avx512` |
+| SM103 | B300 | Type A (sm_103) | See `cuda-12_9` branch | `torchvision-python313-cuda12_9-sm103-avx512` |
 | SM100 | B100/B200 | Type A (sm_100) | ✅ Available | `torchvision-python313-cuda12_8-sm100-avx512` |
 | SM90 | H100/L40S | Type A (sm_90) | ✅ Available | `torchvision-python313-cuda12_8-sm90-avx512` |
 | SM89 | RTX 4090 | Type A (sm_89) | ✅ Available | `torchvision-python313-cuda12_8-sm89-avx512` |
