@@ -43,11 +43,10 @@ To find compatible versions:
 
 ## Current Status
 
-**✅ 49 variants on main branch**
+**✅ 44 variants on main branch**
 
 | Architecture | Variants | Status |
 |--------------|----------|--------|
-| SM121 (DGX Spark) | 6/6 | ✅ Complete |
 | SM120 (RTX 5090) | 6/6 | ✅ Complete |
 | CPU-only | 6/6 | ✅ Complete |
 | SM100 (B100/B200) | 6/6 | ✅ Complete |
@@ -57,7 +56,7 @@ To find compatible versions:
 | SM80 (A100/A30) | 6/6 | ✅ Complete |
 | SM61 (GTX 1070/1080 Ti) | 1 | ✅ AVX variant (cuDNN, NNPACK disabled) |
 
-**Total: 49 variants on main** (SM103 and SM110 moved to dedicated CUDA branches)
+**Total: 44 variants on main** (SM103 on `cuda-12_9`; SM110 + SM121 on `cuda-13_0`)
 
 See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for detailed build matrix.
 
@@ -67,7 +66,7 @@ Different GPU architectures require different minimum CUDA toolkit versions. Sin
 
 | Branch | CUDA Toolkit | Architectures | Variants |
 |--------|-------------|---------------|----------|
-| `main` | CUDA 12.8 | SM61, SM80–SM100, SM120, SM121, CPU | 49 |
+| `main` | CUDA 12.8 | SM61, SM80–SM100, SM120, CPU | 44 |
 | `cuda-12_9` | CUDA 12.9 | SM103 | 6 |
 | `cuda-13_0` | CUDA 13.0 | SM110, SM121 | 12 |
 

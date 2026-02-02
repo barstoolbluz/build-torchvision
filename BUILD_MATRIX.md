@@ -38,7 +38,7 @@ Build Variant = f(Python_Version, GPU_Architecture, CPU_ISA, CUDA_Toolkit)
 
 | SM Version | Architecture | GPUs | CUDA Requirement | Pattern | Status |
 |------------|--------------|------|------------------|---------|--------|
-| **SM121** | DGX Spark | DGX Spark (Specialized Datacenter) | CUDA 12.8+ | Type A | ✅ Done (6/6) |
+| **SM121** | DGX Spark | DGX Spark (Specialized Datacenter) | CUDA 12.9+ | Type A | Moved to `cuda-13_0` branch (requires CUDA 12.9+) |
 | **SM120** | Blackwell | RTX 5090 | CUDA 12.8+ | Type B | ✅ Done (6/6) |
 | **SM110** | Automotive | DRIVE Thor, Orin+ | CUDA 13.0+ | Type A | Moved to `cuda-13_0` branch (requires CUDA 13.0) |
 | **SM103** | Blackwell DC | B300 (Datacenter) | CUDA 12.9+ | Type A | Moved to `cuda-12_9` branch (requires CUDA 12.9) |
