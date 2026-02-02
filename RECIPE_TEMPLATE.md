@@ -42,7 +42,7 @@ This document provides **mechanical, copy-paste templates** for creating any Tor
 
 ### Pattern Type A: sm_XXX format
 
-Used by: **SM121, SM100, SM90, SM89, SM80** (5 architectures on main branch)
+Used by: **SM100, SM90, SM89, SM80** on main (4 architectures); also **SM121** on `cuda-13_0` branch
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES (just the integer)
@@ -74,7 +74,7 @@ grep -E "gpuArchNum|gpuArchSM|gpuTargets" ../build-pytorch/.flox/pkgs/pytorch-{P
 
 ## GPU Build Template
 
-### Template for SM121, SM100, SM90, SM89, SM80 (Pattern Type A)
+### Template for SM100, SM90, SM89, SM80 (Pattern Type A) — also SM121 on `cuda-13_0`
 
 **File:** `.flox/pkgs/torchvision-{PYTHON}-cuda{CUDA_MAJOR}_{CUDA_MINOR}-{GPU_ARCH}-{CPU_ISA}.nix`
 
@@ -359,7 +359,7 @@ in
 
 | Variable | {GPU_ARCH} | {GPU_ARCH_UPPER} | {GPU_ARCH_DECIMAL} | {GPU_DESC} | Pattern | Status |
 |----------|------------|------------------|-------------------|------------|---------|--------|
-| SM121 | `sm121` | `SM121` | `12.1` | `NVIDIA DGX Spark (Specialized Datacenter)` | Type A | ✅ Done (6/6) |
+| SM121 | `sm121` | `SM121` | `12.1` | `NVIDIA DGX Spark (Specialized Datacenter)` | Type A | ✅ Done (6/6) — on `cuda-13_0` branch |
 | SM120 | `sm120` | `SM120` | `12.0` | `NVIDIA Blackwell (RTX 5090)` | Type B | ✅ Done (6/6) |
 | SM110 | `sm110` | `SM110` | `11.0` | `NVIDIA DRIVE Thor, Orin+ (Automotive)` | Type A | Moved to `cuda-13_0` branch |
 | SM103 | `sm103` | `SM103` | `10.3` | `NVIDIA Blackwell B300 (Datacenter)` | Type A | Moved to `cuda-12_9` branch |
@@ -369,7 +369,7 @@ in
 | SM86 | `sm86` | `SM86` | `8.6` | `NVIDIA Ampere (RTX 3090, A40, A5000)` | Type B | ✅ Done (6/6) |
 | SM80 | `sm80` | `SM80` | `8.0` | `NVIDIA Ampere Datacenter (A100, A30)` | Type A | ✅ Done (6/6) |
 
-**Pattern Type A** (SM121, SM100, SM90, SM89, SM80): Uses `gpuArchSM = "sm_XXX"` and `gpuTargets = [ gpuArchSM ]`
+**Pattern Type A** (SM100, SM90, SM89, SM80 on main; SM121 on `cuda-13_0`): Uses `gpuArchSM = "sm_XXX"` and `gpuTargets = [ gpuArchSM ]`
 **Pattern Type B** (SM120, SM86): Uses `gpuArchNum = "{GPU_ARCH_DECIMAL}"` and `gpuTargets = [ gpuArchNum ]` (NO gpuArchSM)
 
 ### GPU Architecture Extra Variables
@@ -433,9 +433,9 @@ in
 
 ## Examples
 
-### Example 1: SM121 (DGX Spark) with AVX-512, Python 3.13, CUDA 12.8
+### Example 1: SM121 (DGX Spark) with AVX-512, Python 3.13, CUDA 13.0 *(on `cuda-13_0` branch)*
 
-**File:** `.flox/pkgs/torchvision-python313-cuda12_8-sm121-avx512.nix`
+**File:** `.flox/pkgs/torchvision-python313-cuda13_0-sm121-avx512.nix`
 
 **Pattern:** Type A (uses gpuArchSM)
 
@@ -456,7 +456,7 @@ in
 - `{PLATFORM}` → `x86_64-linux`
 - `{CHOOSE_THIS_IF}` → `Choose this if: You have DGX Spark or specialized datacenter GPUs with latest server CPUs.`
 
-**Result:** Already exists! (See `.flox/pkgs/torchvision-python313-cuda12_8-sm121-avx512.nix`)
+**Result:** Already exists! (See `.flox/pkgs/torchvision-python313-cuda13_0-sm121-avx512.nix`)
 
 ---
 
@@ -580,7 +580,7 @@ To create a new variant:
 ## Notes
 
 - **CRITICAL:** Always check the corresponding PyTorch pattern before creating TorchVision variants!
-  - Pattern Type A (SM121, SM100, SM90, SM89, SM80): with gpuArchSM
+  - Pattern Type A (SM100, SM90, SM89, SM80 on main; SM121 on `cuda-13_0`): with gpuArchSM
   - Pattern Type B (SM120, SM86): without gpuArchSM
 - TorchVision depends on a matching PyTorch variant with the same GPU/CPU configuration
 - All GPU builds include custom PyTorch with matching optimizations
@@ -590,7 +590,7 @@ To create a new variant:
 - ARM GPU builds should use `platforms = [ "aarch64-linux" ]`
 - x86-64 GPU builds should use `platforms = [ "x86_64-linux" ]`
 - CPU-only builds can use both platforms for maximum compatibility
-- **Current Status:** 7 GPU architectures on main (SM80, SM86, SM89, SM90, SM100, SM120, SM121) + SM61 legacy
+- **Current Status:** 6 GPU architectures on main (SM80, SM86, SM89, SM90, SM100, SM120) + SM61 legacy; SM121 on `cuda-13_0`
 - SM103 requires CUDA 12.9 (see `cuda-12_9` branch). SM110 requires CUDA 13.0 (see `cuda-13_0` branch).
 
 ---

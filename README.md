@@ -290,7 +290,7 @@ cd build-torchvision
 # Activate flox environment
 flox activate
 
-# Build a specific variant (49 variants on main)
+# Build a specific variant (44 variants on main)
 flox build torchvision-python313-cuda12_8-sm120-avx512
 
 # Result appears as symlink
@@ -312,9 +312,10 @@ print(f'CUDA available: {torch.cuda.is_available()}')
 flox build torchvision-python313-cuda12_8-sm120-avx512
 ```
 
-**Scenario 2: DGX Spark + AMD EPYC Zen 4**
+**Scenario 2: DGX Spark + AMD EPYC Zen 4** *(requires `git checkout cuda-13_0` first)*
 ```bash
-flox build torchvision-python313-cuda12_8-sm121-avx512
+git checkout cuda-13_0
+flox build torchvision-python313-cuda13_0-sm121-avx512
 ```
 
 **Scenario 3: RTX 5090 + Broad CPU compatibility**
@@ -331,9 +332,9 @@ flox build torchvision-python313-cuda12_8-sm120-armv9
 
 TorchVision must match the GPU architecture pattern used by the corresponding PyTorch build. There are **THREE different patterns**:
 
-### Pattern Type A: sm_XXX format (SM121, SM100, SM90, SM89, SM80)
+### Pattern Type A: sm_XXX format (SM100, SM90, SM89, SM80)
 
-**Used by:** SM121, SM100, SM90, SM89, SM80 (also SM110 and SM103 on their respective CUDA branches)
+**Used by:** SM100, SM90, SM89, SM80 on main (also SM121 and SM110 on `cuda-13_0`; SM103 on `cuda-12_9`)
 
 ```nix
 gpuArchNum = "121";        # For CMAKE_CUDA_ARCHITECTURES
@@ -378,14 +379,14 @@ grep -E "gpuArchNum|gpuArchSM|gpuTargets" \
 This project includes comprehensive documentation:
 
 - **[QUICKSTART.md](./QUICKSTART.md)** - Quick start guide with examples
-- **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** - Complete build matrix (49 variants on main)
+- **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** - Complete build matrix (44 variants on main)
 - **[RECIPE_TEMPLATE.md](./RECIPE_TEMPLATE.md)** - Templates for creating new variants
 - **[TEST_GUIDE.md](./TEST_GUIDE.md)** - Testing procedures and examples
 - **[README.md](./README.md)** - This file (overview and reference)
 
 ## Adding More Variants
 
-All 49 variants on main are complete! To add support for future GPU architectures:
+All 44 variants on main are complete! To add support for future GPU architectures:
 
 ### Step 1: Check PyTorch Pattern
 
@@ -540,7 +541,7 @@ git push origin main
 
 # Publish to your Flox organization
 flox publish -o <your-org> torchvision-python313-cuda12_8-sm120-avx512
-flox publish -o <your-org> torchvision-python313-cuda12_8-sm121-avx512
+flox publish -o <your-org> torchvision-python313-cuda13_0-sm121-avx512  # on cuda-13_0 branch
 
 # Users install with:
 flox install <your-org>/torchvision-python313-cuda12_8-sm120-avx512
@@ -592,8 +593,7 @@ build-torchvision/
 ├── .flox/
 │   ├── env/              # Flox environment configuration
 │   │   └── manifest.toml
-│   └── pkgs/             # Nix package definitions (49 variants on main)
-│       ├── torchvision-python313-cuda12_8-sm121-*.nix  # 6 SM121 variants ✅
+│   └── pkgs/             # Nix package definitions (44 variants on main)
 │       ├── torchvision-python313-cuda12_8-sm120-*.nix  # 6 SM120 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm100-*.nix  # 6 SM100 variants ✅
 │       ├── torchvision-python313-cuda12_8-sm90-*.nix   # 6 SM90 variants ✅
@@ -634,7 +634,7 @@ This project is a companion to `../build-pytorch/` and follows the same:
 
 **Problem:** TorchVision variant doesn't exist yet.
 
-**Solution:** All 49 variants on main are complete. SM103 variants are on the `cuda-12_9` branch and SM110 variants are on the `cuda-13_0` branch. Check that you're using the correct package name format and branch. See BUILD_MATRIX.md for the full list of available variants.
+**Solution:** All 44 variants on main are complete. SM103 variants are on the `cuda-12_9` branch; SM110 and SM121 variants are on the `cuda-13_0` branch. Check that you're using the correct package name format and branch. See BUILD_MATRIX.md for the full list of available variants.
 
 ### "PyTorch dependency not found"
 
@@ -683,7 +683,7 @@ This build environment configuration follows the same licensing as TorchVision a
 ---
 
 **Next Steps:**
-1. ✅ 49 variants on main + 6 on cuda-12_9 + 12 on cuda-13_0 (67 total across branches)
+1. ✅ 44 variants on main + 6 on cuda-12_9 + 12 on cuda-13_0 (62 total across branches)
 2. Test variants on target hardware across all architectures
 3. Set up proper PyTorch dependency resolution
 4. Publish to FloxHub for team distribution

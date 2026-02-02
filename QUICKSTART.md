@@ -2,7 +2,7 @@
 
 ## Choosing Your Variant
 
-**49 variants complete** on `main` branch (49/49 implemented - 100% ✅). Choose based on your hardware to match your PyTorch variant.
+**44 variants complete on main** branch (44/44 implemented - 100% ✅). SM121 (6 variants) is on the `cuda-13_0` branch. Choose based on your hardware to match your PyTorch variant.
 
 > **Note:** SM103 and SM110 variants have been moved to CUDA-version-specific branches (`cuda-12_9` and `cuda-13_0` respectively). Check out the appropriate branch to build those variants.
 
@@ -18,7 +18,7 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader
 
 | Your GPU | Compute Cap | Architecture | Example Package | Status |
 |----------|-------------|--------------|-----------------|--------|
-| DGX Spark | 12.1 | SM121 | `torchvision-python313-cuda12_8-sm121-avx512` | ✅ Available (6 variants) |
+| DGX Spark | 12.1 | SM121 | `torchvision-python313-cuda13_0-sm121-avx512` | ✅ Available (6 variants, on `cuda-13_0` branch) |
 | RTX 5090 | 12.0 | SM120 | `torchvision-python313-cuda12_8-sm120-avx512` | ✅ Available (6 variants) |
 | NVIDIA DRIVE Thor, Orin+ | 11.0 | SM110 | `torchvision-python313-cuda12_8-sm110-avx512` | See `cuda-13_0` branch |
 | B300 | 10.3 | SM103 | `torchvision-python313-cuda12_8-sm103-avx512` | See `cuda-12_9` branch |
@@ -45,17 +45,17 @@ lscpu | grep -E 'avx512|sve'
 
 ## Current Status
 
-### Available Variants (49/49 on main) ✅ COMPLETE
+### Available Variants (44/44 on main) ✅ COMPLETE
 
-> **Note:** SM103 (6 variants) moved to `cuda-12_9` branch. SM110 (6 variants) moved to `cuda-13_0` branch.
+> **Note:** SM103 (6 variants) moved to `cuda-12_9` branch. SM110 + SM121 (12 variants) moved to `cuda-13_0` branch.
 
-**SM121 (DGX Spark) - 6 variants:**
-- `torchvision-python313-cuda12_8-sm121-avx2` (x86_64)
-- `torchvision-python313-cuda12_8-sm121-avx512` (x86_64)
-- `torchvision-python313-cuda12_8-sm121-avx512bf16` (x86_64)
-- `torchvision-python313-cuda12_8-sm121-avx512vnni` (x86_64)
-- `torchvision-python313-cuda12_8-sm121-armv8.2` (aarch64)
-- `torchvision-python313-cuda12_8-sm121-armv9` (aarch64)
+**SM121 (DGX Spark) - 6 variants** *(on `cuda-13_0` branch, not main):*
+- `torchvision-python313-cuda13_0-sm121-avx2` (x86_64)
+- `torchvision-python313-cuda13_0-sm121-avx512` (x86_64)
+- `torchvision-python313-cuda13_0-sm121-avx512bf16` (x86_64)
+- `torchvision-python313-cuda13_0-sm121-avx512vnni` (x86_64)
+- `torchvision-python313-cuda13_0-sm121-armv8.2` (aarch64)
+- `torchvision-python313-cuda13_0-sm121-armv9` (aarch64)
 
 **SM120 (RTX 5090) - 6 variants:**
 - `torchvision-python313-cuda12_8-sm120-avx2` (x86_64)
@@ -67,7 +67,7 @@ lscpu | grep -E 'avx512|sve'
 
 **Plus 36 additional variants** for SM100, SM90, SM89, SM86, SM80, and CPU-only builds.
 
-See **BUILD_MATRIX.md** for the complete list of all 49 variants on `main`. SM103 and SM110 variants are available on their respective CUDA-version branches.
+See **BUILD_MATRIX.md** for the complete list of all 44 variants on `main`. SM103 is on `cuda-12_9`; SM110 and SM121 are on `cuda-13_0`.
 
 ## Building TorchVision Variants
 
@@ -102,8 +102,8 @@ flox build torchvision-python313-cuda12_8-sm120-avx512      # General performanc
 flox build torchvision-python313-cuda12_8-sm120-avx512bf16  # BF16 training
 flox build torchvision-python313-cuda12_8-sm120-avx512vnni  # INT8 inference
 
-# SM121 variants (DGX Spark) - Available now
-flox build torchvision-python313-cuda12_8-sm121-avx512      # General performance
+# SM121 variants (DGX Spark) - requires `git checkout cuda-13_0` first
+flox build torchvision-python313-cuda13_0-sm121-avx512      # General performance
 
 # ARM variants (if on ARM server)
 flox build torchvision-python313-cuda12_8-sm120-armv9       # Grace, Graviton3+
@@ -186,7 +186,7 @@ git push origin main
 # Publish to Flox catalog (requires flox auth login)
 flox publish -o <your-org> torchvision-python313-cuda12_8-sm120-avx512
 flox publish -o <your-org> torchvision-python313-cuda12_8-sm120-avx2
-flox publish -o <your-org> torchvision-python313-cuda12_8-sm121-avx512
+flox publish -o <your-org> torchvision-python313-cuda13_0-sm121-avx512  # on cuda-13_0 branch
 
 # Users can then install with:
 flox install <your-org>/torchvision-python313-cuda12_8-sm120-avx512
@@ -218,9 +218,9 @@ See **RECIPE_TEMPLATE.md** for complete templates and variable lookup tables.
 #### Example: Creating SM90 variants (Pattern Type A)
 
 ```bash
-# SM90 uses Pattern Type A (like SM121)
-# Copy an existing SM121 file as template
-cp .flox/pkgs/torchvision-python313-cuda12_8-sm121-avx512.nix \
+# SM90 uses Pattern Type A (like SM121, which is on cuda-13_0 branch)
+# Copy an existing Pattern Type A file as template (e.g., SM100 on main, or SM121 on cuda-13_0)
+cp .flox/pkgs/torchvision-python313-cuda12_8-sm100-avx512.nix \
    .flox/pkgs/torchvision-python313-cuda12_8-sm90-avx512.nix
 ```
 
@@ -413,7 +413,7 @@ See the full documentation:
 
 **Problem:** TorchVision variant doesn't exist yet.
 
-**Solution:** All 49 variants on `main` are complete. For SM103 or SM110, check out the `cuda-12_9` or `cuda-13_0` branch respectively. See `BUILD_MATRIX.md` for the full list of available variants.
+**Solution:** All 44 variants on `main` are complete. For SM103, check out `cuda-12_9`; for SM110 or SM121, check out `cuda-13_0`. See `BUILD_MATRIX.md` for the full list of available variants.
 
 ### Issue: "PyTorch dependency not found"
 
@@ -443,7 +443,7 @@ Then use the matching pattern for TorchVision.
 
 | Architecture | GPU | Pattern | Status | Example Package |
 |--------------|-----|---------|--------|-----------------|
-| SM121 | DGX Spark | Type A (sm_121) | ✅ Available | `torchvision-python313-cuda12_8-sm121-avx512` |
+| SM121 | DGX Spark | Type A (sm_121) | ✅ Available (cuda-13_0 branch) | `torchvision-python313-cuda13_0-sm121-avx512` |
 | SM120 | RTX 5090 | Type B (12.0) | ✅ Available | `torchvision-python313-cuda12_8-sm120-avx512` |
 | SM110 | DRIVE Thor | Type A (sm_110) | See `cuda-13_0` branch | `torchvision-python313-cuda12_8-sm110-avx512` |
 | SM103 | B300 | Type A (sm_103) | See `cuda-12_9` branch | `torchvision-python313-cuda12_8-sm103-avx512` |

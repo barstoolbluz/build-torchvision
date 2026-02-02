@@ -20,10 +20,9 @@ print(f'CUDA available: {torch.cuda.is_available()}')
 
 ### Available Builds
 
-Currently implemented: 49 variants on `main`, 18 on CUDA branches (67 total)
+Currently implemented: 44 variants on `main`, 18 on CUDA branches (62 total)
 
 **On `main` branch (CUDA 12.8):**
-- **SM121 variants:** `torchvision-python313-cuda12_8-sm121-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 - **SM120 variants:** `torchvision-python313-cuda12_8-sm120-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 - **SM100 variants:** `torchvision-python313-cuda12_8-sm100-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 - **SM90 variants:** `torchvision-python313-cuda12_8-sm90-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
@@ -38,7 +37,7 @@ Currently implemented: 49 variants on `main`, 18 on CUDA branches (67 total)
 
 **On `cuda-13_0` branch (CUDA 13.0):**
 - **SM110 variants:** `torchvision-python313-cuda13_0-sm110-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
-- **SM121 variants:** `torchvision-python313-cuda12_8-sm121-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
+- **SM121 variants:** `torchvision-python313-cuda13_0-sm121-{avx2,avx512,avx512bf16,avx512vnni,armv8.2,armv9}`
 
 ## What the Tests Should Check
 

@@ -124,12 +124,12 @@ All SM121 variants use **Pattern Type A** (with gpuArchSM):
 
 | Package Name | CPU ISA | Platform | Status |
 |-------------|---------|----------|--------|
-| `torchvision-python313-cuda12_8-sm121-avx2` | AVX2 | x86_64-linux | ✅ Created |
-| `torchvision-python313-cuda12_8-sm121-avx512` | AVX-512 | x86_64-linux | ✅ Created |
-| `torchvision-python313-cuda12_8-sm121-avx512bf16` | AVX-512 BF16 | x86_64-linux | ✅ Created |
-| `torchvision-python313-cuda12_8-sm121-avx512vnni` | AVX-512 VNNI | x86_64-linux | ✅ Created |
-| `torchvision-python313-cuda12_8-sm121-armv8.2` | ARMv8.2-A | aarch64-linux | ✅ Created |
-| `torchvision-python313-cuda12_8-sm121-armv9` | ARMv9-A | aarch64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-avx2` | AVX2 | x86_64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-avx512` | AVX-512 | x86_64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-avx512bf16` | AVX-512 BF16 | x86_64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-avx512vnni` | AVX-512 VNNI | x86_64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-armv8.2` | ARMv8.2-A | aarch64-linux | ✅ Created |
+| `torchvision-python313-cuda13_0-sm121-armv9` | ARMv9-A | aarch64-linux | ✅ Created |
 
 **GPU Pattern (SM121):**
 ```nix
@@ -271,7 +271,7 @@ gpuTargets = [ gpuArchSM ]; # Uses sm_121
 
 **Verification command:**
 ```bash
-grep -E "gpuArchNum|gpuArchSM|gpuTargets" ../build-pytorch/.flox/pkgs/pytorch-python313-cuda12_8-sm121-*.nix | head -5
+grep -E "gpuArchNum|gpuArchSM|gpuTargets" ../build-pytorch/.flox/pkgs/pytorch-python313-cuda13_0-sm121-*.nix | head -5
 ```
 
 ### Pattern Type B: Decimal format without gpuArchSM (SM120, SM86)
@@ -338,7 +338,7 @@ gpuTargets = [ gpuArchSM ]; # Uses "6.1"
 
    | Your GPU | Your Driver | Install This |
    |----------|-------------|--------------|
-   | DGX Spark | 570+ | `torchvision-python313-cuda12_8-sm121-avx512` (or other ISA) |
+   | DGX Spark | 570+ | `torchvision-python313-cuda13_0-sm121-avx512` (or other ISA) |
    | RTX 5090 | 570+ | `torchvision-python313-cuda12_8-sm120-avx512` (or other ISA) |
    | RTX 5090 | < 570 | Upgrade driver first! |
    | H100/L40S | 570+ | `torchvision-python313-cuda12_8-sm90-avx512` |
