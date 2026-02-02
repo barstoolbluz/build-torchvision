@@ -25,12 +25,12 @@ Since the PyTorch override pattern binds `cudaPackages` from the nixpkgs scope, 
 
 | Package Name | CPU ISA | Platform |
 |---|---|---|
-| `torchvision-python313-cuda12_8-sm121-avx2` | AVX2 | x86_64-linux |
-| `torchvision-python313-cuda12_8-sm121-avx512` | AVX-512 | x86_64-linux |
-| `torchvision-python313-cuda12_8-sm121-avx512bf16` | AVX-512 BF16 | x86_64-linux |
-| `torchvision-python313-cuda12_8-sm121-avx512vnni` | AVX-512 VNNI | x86_64-linux |
-| `torchvision-python313-cuda12_8-sm121-armv8.2` | ARMv8.2-A | aarch64-linux |
-| `torchvision-python313-cuda12_8-sm121-armv9` | ARMv9-A | aarch64-linux |
+| `torchvision-python313-cuda13_0-sm121-avx2` | AVX2 | x86_64-linux |
+| `torchvision-python313-cuda13_0-sm121-avx512` | AVX-512 | x86_64-linux |
+| `torchvision-python313-cuda13_0-sm121-avx512bf16` | AVX-512 BF16 | x86_64-linux |
+| `torchvision-python313-cuda13_0-sm121-avx512vnni` | AVX-512 VNNI | x86_64-linux |
+| `torchvision-python313-cuda13_0-sm121-armv8.2` | ARMv8.2-A | aarch64-linux |
+| `torchvision-python313-cuda13_0-sm121-armv9` | ARMv9-A | aarch64-linux |
 
 ## Setup
 
@@ -41,10 +41,10 @@ The nixpkgs pin in each `.nix` file must point to a nixpkgs commit where `cudaPa
 ```bash
 git checkout cuda-13_0
 flox build torchvision-python313-cuda13_0-sm110-avx2
-flox build torchvision-python313-cuda12_8-sm121-avx512
+flox build torchvision-python313-cuda13_0-sm121-avx512
 ```
 
 ## Related Branches
 
-- **`main`** — CUDA 12.8 recipes (SM61, SM80–SM100, SM120, SM121, CPU)
+- **`main`** — CUDA 12.8 recipes (SM61, SM80–SM100, SM120, CPU)
 - **`cuda-12_9`** — CUDA 12.9 recipes (SM103)

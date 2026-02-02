@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX2
-# Package name: torchvision-python313-cuda12_8-sm121-avx2
+# TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2
+# Package name: torchvision-python313-cuda13_0-sm121-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -22,9 +22,7 @@ let
 
   # CPU optimization
   cpuFlags = [
-    "-mavx2"
-    "-mfma"
-    "-mf16c"
+    "-march=armv8.2-a+fp16+dotprod"
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
@@ -47,7 +45,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm121-avx2";
+    pname = "torchvision-python313-cuda13_0-sm121-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -70,7 +68,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX2";
+      description = "TorchVision optimized for NVIDIA DGX Spark (SM121) + ARMv8.2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

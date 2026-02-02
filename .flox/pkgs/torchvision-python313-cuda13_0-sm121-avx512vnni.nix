@@ -1,5 +1,5 @@
-# TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX-512 BF16
-# Package name: torchvision-python313-cuda12_8-sm121-avx512bf16
+# TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX-512 VNNI
+# Package name: torchvision-python313-cuda13_0-sm121-avx512vnni
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -26,7 +26,7 @@ let
     "-mavx512dq"
     "-mavx512vl"
     "-mavx512bw"
-    "-mavx512bf16"
+    "-mavx512vnni"
     "-mfma"
   ];
 
@@ -50,7 +50,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_8-sm121-avx512bf16";
+    pname = "torchvision-python313-cuda13_0-sm121-avx512vnni";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -73,7 +73,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX-512 BF16";
+      description = "TorchVision optimized for NVIDIA DGX Spark (SM121) + AVX-512 VNNI";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })
