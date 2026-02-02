@@ -114,13 +114,13 @@ Build Variant = f(Python_Version, GPU_Architecture, CPU_ISA, CUDA_Toolkit)
 - **SM103:** 6 variants on `cuda-12_9` branch
 - **SM110:** 6 variants on `cuda-13_0` branch
 
-**Currently implemented on main:** 49 ✅
+**Currently implemented on main:** 44 ✅
 
 ### Implemented Variants
 
-#### SM121 Variants (6/6) ✅ COMPLETE
+#### SM121 Variants (6/6) ✅ COMPLETE — on `cuda-13_0` branch
 
-All SM121 variants use **Pattern Type A** (with gpuArchSM):
+All SM121 variants use **Pattern Type A** (with gpuArchSM). These are on the `cuda-13_0` branch (requires CUDA 13.0+):
 
 | Package Name | CPU ISA | Platform | Status |
 |-------------|---------|----------|--------|
@@ -439,7 +439,7 @@ customPytorch = inputs.build-pytorch.packages.{system}.pytorch-python313-cuda12_
 ## Summary
 
 **Current Status:**
-- ✅ SM121: 6/6 variants created (100%)
+- ➡️ SM121: Moved to `cuda-13_0` branch (6 variants, requires CUDA 13.0)
 - ✅ SM120: 6/6 variants created (100%)
 - ➡️ SM110: Moved to `cuda-13_0` branch (6 variants, requires CUDA 13.0)
 - ➡️ SM103: Moved to `cuda-12_9` branch (6 variants, requires CUDA 12.9)
@@ -451,17 +451,17 @@ customPytorch = inputs.build-pytorch.packages.{system}.pytorch-python313-cuda12_
 - ✅ SM61: 1 variant created (AVX)
 - ✅ CPU-only: 6/6 variants created (100%)
 
-**Total Progress (main branch): 49 variants ✅** (+ 12 on CUDA-version branches)
+**Total Progress (main branch): 44 variants ✅** (+ 18 on CUDA-version branches)
 
 **Next Steps:**
-1. ✅ 49 variants on main, 12 on CUDA-version branches
+1. ✅ 44 variants on main, 18 on CUDA-version branches (62 total)
 2. Test variants on target hardware
 3. Set up proper PyTorch dependency resolution
 4. Publish to FloxHub for team distribution
 5. Document testing procedures and validation results
 
 **Pattern Reference:**
-- **Pattern Type A** (gpuArchSM = "sm_XXX"): SM121, SM100, SM90, SM89, SM80 (main); SM110 (`cuda-13_0`), SM103 (`cuda-12_9`)
+- **Pattern Type A** (gpuArchSM = "sm_XXX"): SM100, SM90, SM89, SM80 (main); SM121, SM110 (`cuda-13_0`); SM103 (`cuda-12_9`)
 - **Pattern Type B** (gpuArchNum = "X.X", no gpuArchSM): SM120, SM86
 - **Pattern Type C** (gpuArchSM = "X.X" dot notation): SM61 (and older pre-SM80 architectures)
 - Always verify PyTorch pattern before creating variants!
