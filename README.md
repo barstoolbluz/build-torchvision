@@ -77,20 +77,9 @@ Different GPU architectures require different minimum CUDA toolkit versions. Sin
 
 ## Build Matrix
 
-**49 variants** on main covering GPU architectures (SM61/SM80/SM86/SM89/SM90/SM100/SM120/SM121) × CPU instruction sets (AVX, AVX2, AVX-512, AVX-512 BF16, AVX-512 VNNI, ARMv8.2, ARMv9), plus CPU-only builds. SM103 and SM110 are on dedicated CUDA branches.
+**44 variants** on main covering GPU architectures (SM61/SM80/SM86/SM89/SM90/SM100/SM120) × CPU instruction sets (AVX, AVX2, AVX-512, AVX-512 BF16, AVX-512 VNNI, ARMv8.2, ARMv9), plus CPU-only builds. SM103 is on `cuda-12_9`; SM110 and SM121 are on `cuda-13_0`.
 
-### Available Variants (49) ✅
-
-#### SM121 (DGX Spark) - 6 variants ✅
-
-| Package Name | CPU ISA | Platform | Primary Use Case |
-|-------------|---------|----------|------------------|
-| `torchvision-python313-cuda12_8-sm121-avx2` | AVX2 | x86_64-linux | DGX Spark + broad CPU compatibility |
-| `torchvision-python313-cuda12_8-sm121-avx512` | AVX-512 | x86_64-linux | DGX Spark + general workloads |
-| `torchvision-python313-cuda12_8-sm121-avx512bf16` | AVX-512 BF16 | x86_64-linux | DGX Spark + BF16 training |
-| `torchvision-python313-cuda12_8-sm121-avx512vnni` | AVX-512 VNNI | x86_64-linux | DGX Spark + INT8 inference |
-| `torchvision-python313-cuda12_8-sm121-armv8.2` | ARMv8.2-A | aarch64-linux | DGX Spark + ARM Graviton2 |
-| `torchvision-python313-cuda12_8-sm121-armv9` | ARMv9-A | aarch64-linux | DGX Spark + ARM Grace |
+### Available Variants on main (44) ✅
 
 #### SM120 (RTX 5090 / Blackwell) - 6 variants ✅
 
@@ -114,7 +103,7 @@ Different GPU architectures require different minimum CUDA toolkit versions. Sin
 | `torchvision-python313-cpu-armv8.2` | ARMv8.2-A | aarch64-linux | CPU-only + ARM Graviton2 |
 | `torchvision-python313-cpu-armv9` | ARMv9-A | aarch64-linux | CPU-only + ARM Grace |
 
-See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 49 variants including:
+See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 44 variants including:
 - SM100 (Blackwell B100/B200) - 6 variants ✅
 - SM90 (Hopper H100/L40S) - 6 variants ✅
 - SM89 (Ada Lovelace RTX 4090/L40) - 6 variants ✅
@@ -124,11 +113,12 @@ See **[BUILD_MATRIX.md](./BUILD_MATRIX.md)** for the complete list of all 49 var
 
 ## GPU Architecture Reference
 
-**SM121 (DGX Spark) - Compute Capability 12.1**
+**SM121 (DGX Spark) - Compute Capability 12.1** *(See `cuda-13_0` branch)*
 - Specialized Datacenter: DGX Spark
 - Driver: NVIDIA 570+
 - Pattern: Type A (uses `gpuArchSM = "sm_121"`)
 - Features: Specialized datacenter workloads, high-performance computing
+- **Requires CUDA 12.9+** — variants are on the `cuda-13_0` branch
 
 **SM120 (Blackwell) - Compute Capability 12.0**
 - Consumer: RTX 5090
