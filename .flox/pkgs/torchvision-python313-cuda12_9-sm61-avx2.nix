@@ -17,9 +17,9 @@ let
     ];
   };
 
-  # GPU target
+  # GPU target: SM61 (Pascal consumer - GTX 1070, 1080, 1080 Ti)
   gpuArchNum = "61";
-  gpuArchSM = "sm_61";
+  gpuArchSM = "6.1";  # Dot notation required for older archs in TORCH_CUDA_ARCH_LIST
 
   # CPU optimization
   cpuFlags = [
@@ -41,6 +41,9 @@ let
       export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
       export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
+
+      # cuDNN 9.11+ dropped SM < 7.5 support — disable for SM61
+      export USE_CUDNN=0
     '';
   });
 
@@ -62,9 +65,9 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_61"
-      echo "CPU Features: Optimized"
-      echo "CUDA: Enabled"
+      echo "GPU Target: ${gpuArchSM} (Pascal: GTX 1070, 1080, 1080 Ti)"
+      echo "CPU Features: AVX2 + FMA"
+      echo "CUDA: Enabled (cuDNN disabled — SM61 unsupported by cuDNN 9.11+)"
       echo "PyTorch: ${customPytorch.version}"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
@@ -72,6 +75,6 @@ in
 
     meta = oldAttrs.meta // {
       description = "TorchVision optimized for NVIDIA Pascal GTX 10-series (SM61) + AVX2";
-      platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
+      platforms = [ "x86_64-linux" ];
     };
   })
