@@ -75,6 +75,14 @@ Different GPU architectures require different minimum CUDA toolkit versions. Sin
 - `sm_110` requires CUDA 13.0+ (not available in nixpkgs CUDA 12.8 or 12.9)
 - The PyTorch `override` pattern uses `cudaPackages` from the nixpkgs scope, so switching CUDA versions requires a different nixpkgs pin or overlay per branch
 
+## Version Matrix
+
+| Branch | TorchVision | PyTorch | CUDA | cuDNN | Python | Min Driver | Nixpkgs Pin |
+|--------|-------------|---------|------|-------|--------|------------|-------------|
+| **`main`** ⬅️ | **0.23.0** | **2.8.0** | **12.8** | **9.x** | **3.13** | **550+** | [**`fe5e41d`**](https://github.com/NixOS/nixpkgs/tree/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3) |
+| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 9.13.0 | 3.13 | 550+ | [`6a030d5`](https://github.com/NixOS/nixpkgs/tree/6a030d535719c5190187c4cec156f335e95e3211) |
+| `cuda-13_0` | TBD | 2.10 | 13.0 | TBD | 3.13 | 570+ | TBD |
+
 ## Build Matrix
 
 **44 variants** on main covering GPU architectures (SM61/SM80/SM86/SM89/SM90/SM100/SM120) × CPU instruction sets (AVX, AVX2, AVX-512, AVX-512 BF16, AVX-512 VNNI, ARMv8.2, ARMv9), plus CPU-only builds. SM103 is on `cuda-12_9`; SM110 and SM121 are on `cuda-13_0`.
