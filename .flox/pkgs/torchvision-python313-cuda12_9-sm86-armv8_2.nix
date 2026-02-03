@@ -1,10 +1,10 @@
-# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16
-# Package name: torchvision-python313-cuda12_9-sm103-avx512bf16
+# TorchVision optimized for NVIDIA Ampere RTX 30-series (SM86) + ARMv8.2
+# Package name: torchvision-python313-cuda12_9-sm86-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # Import nixpkgs at a specific revision with CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
   }) {
@@ -18,17 +18,12 @@ let
   };
 
   # GPU target
-  gpuArchNum = "103";
-  gpuArchSM = "sm_103";
+  gpuArchNum = "86";
+  gpuArchSM = "sm_86";
 
   # CPU optimization
   cpuFlags = [
-    "-mavx512f"
-    "-mavx512dq"
-    "-mavx512vl"
-    "-mavx512bw"
-    "-mavx512bf16"
-    "-mfma"
+    "-march=armv8.2-a+fp16+dotprod"
   ];
 
   # Custom PyTorch with matching GPU/CPU configuration
@@ -51,7 +46,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_9-sm103-avx512bf16";
+    pname = "torchvision-python313-cuda12_9-sm86-armv8_2";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -65,7 +60,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_103"
+      echo "GPU Target: sm_86"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -74,7 +69,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16";
+      description = "TorchVision optimized for NVIDIA Ampere RTX 30-series (SM86) + ARMv8.2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

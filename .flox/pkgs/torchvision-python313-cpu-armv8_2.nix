@@ -1,42 +1,27 @@
-# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16
-# Package name: torchvision-python313-cuda12_9-sm103-avx512bf16
+# TorchVision CPU-only optimized for ARMv8.2
+# Package name: torchvision-python313-cpu-armv8_2
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # Import nixpkgs at a specific revision with PyTorch 2.9.1 and TorchVision 0.24.0
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
   }) {
     config = {
-      allowUnfree = true;  # Required for CUDA packages
-      cudaSupport = true;
+      allowUnfree = true;
     };
-    overlays = [
-      (final: prev: { cudaPackages = final.cudaPackages_12_9; })
-    ];
   };
-
-  # GPU target
-  gpuArchNum = "103";
-  gpuArchSM = "sm_103";
 
   # CPU optimization
   cpuFlags = [
-    "-mavx512f"
-    "-mavx512dq"
-    "-mavx512vl"
-    "-mavx512bw"
-    "-mavx512bf16"
-    "-mfma"
+    "-march=armv8.2-a+fp16+dotprod"
   ];
 
-  # Custom PyTorch with matching GPU/CPU configuration
+  # Custom PyTorch (CPU-only) with CPU optimization
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
-    cudaSupport = true;
-    gpuTargets = [ gpuArchSM ];
+    cudaSupport = false;
   }).overrideAttrs (oldAttrs: {
-    # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
@@ -51,9 +36,8 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_9-sm103-avx512bf16";
+    pname = "torchvision-python313-cpu-armv8_2";
 
-    # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
@@ -65,16 +49,15 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_103"
-      echo "CPU Features: Optimized"
-      echo "CUDA: Enabled"
+      echo "CPU Features: ARMv8.2"
+      echo "CUDA: Disabled"
       echo "PyTorch: ${customPytorch.version}"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16";
+      description = "TorchVision CPU-only optimized for ARMv8.2";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

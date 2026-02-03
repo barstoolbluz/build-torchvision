@@ -1,10 +1,10 @@
-# TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16
-# Package name: torchvision-python313-cuda12_9-sm103-avx512bf16
+# TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + AVX-512
+# Package name: torchvision-python313-cuda12_9-sm80-avx512
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
+  # Import nixpkgs at a specific revision with CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
   }) {
@@ -18,8 +18,8 @@ let
   };
 
   # GPU target
-  gpuArchNum = "103";
-  gpuArchSM = "sm_103";
+  gpuArchNum = "80";
+  gpuArchSM = "sm_80";
 
   # CPU optimization
   cpuFlags = [
@@ -27,7 +27,6 @@ let
     "-mavx512dq"
     "-mavx512vl"
     "-mavx512bw"
-    "-mavx512bf16"
     "-mfma"
   ];
 
@@ -51,7 +50,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda12_9-sm103-avx512bf16";
+    pname = "torchvision-python313-cuda12_9-sm80-avx512";
 
     # Limit build parallelism to prevent memory saturation
     ninjaFlags = [ "-j32" ];
@@ -65,7 +64,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_103"
+      echo "GPU Target: sm_80"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
@@ -74,7 +73,7 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA Blackwell B300 (SM103) + AVX-512 BF16";
+      description = "TorchVision optimized for NVIDIA Ampere A100/A30 (SM80) + AVX-512";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
     };
   })

@@ -5,15 +5,16 @@
 
 let
   # Import nixpkgs at a specific revision with CUDA 12.9 (required for SM103)
-  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 12.9
   nixpkgs_pinned = import (builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
-    # You can add the sha256 here once known for reproducibility
+    url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
   }) {
     config = {
       allowUnfree = true;  # Required for CUDA packages
       cudaSupport = true;
     };
+    overlays = [
+      (final: prev: { cudaPackages = final.cudaPackages_12_9; })
+    ];
   };
 
   # GPU target
