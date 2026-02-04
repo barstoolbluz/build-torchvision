@@ -394,11 +394,7 @@ build-torchvision/
 │       ├── torchvision-python313-cuda12_9-sm100-*.nix   # 6 SM100 variants
 │       ├── torchvision-python313-cuda12_9-sm103-*.nix   # 6 SM103 variants (B300)
 │       └── torchvision-python313-cuda12_9-sm120-*.nix   # 6 SM120 variants
-├── README.md
-├── BUILD_MATRIX.md
-├── QUICKSTART.md
-├── RECIPE_TEMPLATE.md
-└── TEST_GUIDE.md
+└── README.md
 ```
 
 ### How It Works
@@ -446,7 +442,7 @@ To add more variants:
 
 **Key points:**
 - Always check the PyTorch pattern first (`../build-pytorch/.flox/pkgs/`)
-- SM80+ uses `"sm_XX"` format; SM86/SM120 use decimal format; SM61 uses dot notation `"6.1"`
+- SM80+ uses `"sm_XX"` format (e.g. `"sm_86"`, `"sm_120"`); SM61 uses dot notation `"6.1"`
 - SM61-AVX requires special safety flags (cmake overrides + env disables for NNPACK, FBGEMM, MKLDNN, cuDNN)
 
 ## Troubleshooting
