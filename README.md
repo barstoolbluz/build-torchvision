@@ -407,6 +407,21 @@ build-torchvision/
 4. **TorchVision Override**: Builds TorchVision with `torchvision.override { torch = customPytorch; }`
 5. **Build Flags**: Sets `CXXFLAGS`/`CFLAGS` for CPU instruction sets, `gpuTargets` for GPU architecture
 
+### Key Build Variables
+
+```bash
+# GPU Architecture (CUDA builds)
+export TORCH_CUDA_ARCH_LIST="sm_90"
+export CMAKE_CUDA_ARCHITECTURES="90"
+
+# CPU Optimizations
+export CXXFLAGS="$CXXFLAGS -mavx512f -mavx512dq -mfma"
+
+# BLAS Backend Selection
+export BLAS=OpenBLAS  # or MKL
+export USE_CUBLAS=1   # For GPU builds
+```
+
 ## Publishing to Flox Catalog
 
 Once builds are validated, publish them for team use:
@@ -447,6 +462,97 @@ To add more variants:
 - SM80+ uses `"sm_XX"` format (e.g. `"sm_86"`, `"sm_120"`); SM61 uses dot notation `"6.1"`
 - SM61-AVX requires special safety flags (cmake overrides + env disables for NNPACK, FBGEMM, MKLDNN, cuDNN)
 
+### Example: Adding SM89 (RTX 4090) with AVX-512
+
+```nix
+# .flox/pkgs/torchvision-python313-cuda12_9-sm89-avx512.nix
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  # Pin nixpkgs for reproducible PyTorch 2.9.1 + TorchVision 0.24.0
+  nixpkgs_pinned = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
+  }) {
+    config = {
+      allowUnfree = true;
+      cudaSupport = true;
+    };
+    overlays = [
+      (final: prev: { cudaPackages = final.cudaPackages_12_9; })
+    ];
+  };
+
+  # GPU target: SM89 (Ada Lovelace - RTX 4090, L4, L40)
+  gpuArchNum = "89";
+  gpuArchSM = "sm_89";
+
+  # CPU optimization: AVX-512
+  cpuFlags = [
+    "-mavx512f"    # AVX-512 Foundation
+    "-mavx512dq"   # Doubleword and Quadword instructions
+    "-mavx512vl"   # Vector Length extensions
+    "-mavx512bw"   # Byte and Word instructions
+    "-mfma"        # Fused multiply-add
+  ];
+
+  # Custom PyTorch with matching GPU/CPU configuration
+  customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
+    cudaSupport = true;
+    gpuTargets = [ gpuArchSM ];
+  }).overrideAttrs (oldAttrs: {
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export MAX_JOBS=32
+    '';
+  });
+
+in
+  (nixpkgs_pinned.python3Packages.torchvision.override {
+    torch = customPytorch;
+  }).overrideAttrs (oldAttrs: {
+    pname = "torchvision-python313-cuda12_9-sm89-avx512";
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export MAX_JOBS=32
+    '';
+
+    meta = oldAttrs.meta // {
+      description = "TorchVision for NVIDIA RTX 4090 (SM89, Ada) + AVX-512";
+      longDescription = ''
+        Custom TorchVision build with targeted optimizations:
+        - GPU: NVIDIA Ada Lovelace architecture (SM89) - RTX 4090, L4, L40
+        - CPU: x86-64 with AVX-512 instruction set
+        - CUDA: 12.9 with compute capability 8.9
+        - BLAS: cuBLAS for GPU operations
+        - Python: 3.13
+      '';
+      platforms = [ "x86_64-linux" ];
+    };
+  })
+```
+
+**Key points:**
+- Pin nixpkgs to get compatible PyTorch + TorchVision versions
+- Build custom PyTorch first with `torch.override { cudaSupport = true; gpuTargets = [...] }`
+- Build TorchVision with `torchvision.override { torch = customPytorch; }`
+- CPU flags go in `preConfigure` via `CXXFLAGS`/`CFLAGS`
+- Use `requiredSystemFeatures = [ "big-parallel" ]` in both PyTorch and TorchVision to prevent memory saturation
+
+## Python Version Support
+
+Current variants use Python 3.13. To add Python 3.12 or 3.11 variants:
+
+1. Change package name: `python312Packages.pytorch-sm90-avx512`
+2. Ensure file name matches: `python312Packages.pytorch-sm90-avx512.nix`
+3. The build will automatically use the correct Python version
+
 ## Troubleshooting
 
 ### Build fails with "CUDA not found"
@@ -456,6 +562,13 @@ Ensure you're building on a Linux system. GPU builds are Linux-only.
 ### Build fails with "unknown architecture"
 
 Verify the SM architecture is supported by CUDA 12.9. If targeting SM110/SM121, switch to the `cuda-13_0` branch.
+
+### CPU build performance is poor
+
+Consider using Intel MKL instead of OpenBLAS:
+```nix
+blasBackend = mkl;  # Instead of openblas
+```
 
 ### TorchVision version mismatch
 
