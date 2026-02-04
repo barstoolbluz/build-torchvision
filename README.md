@@ -95,6 +95,8 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 
 ### Variants on Other Branches
 
+Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
+
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 44 (stable baseline) |
