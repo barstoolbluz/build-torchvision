@@ -39,7 +39,8 @@ let
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
-      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      # Add -Wno-error to prevent warnings from failing CMake compiler flag checks
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} -Wno-error $CFLAGS"
       export MAX_JOBS=32
     '';
   });
