@@ -9,6 +9,7 @@ Modern PyTorch/TorchVision containers are often bloated with support for every p
 - **Matched optimizations** - Pairs with PyTorch GPU/CPU configurations from `build-pytorch`
 - **Smaller binaries** - Only include code for your target GPU architecture
 - **Better performance** - CPU code optimized for specific instruction sets (AVX2, AVX-512, ARMv8/9)
+- **Faster startup** - Less code to load means faster initialization
 - **Easier deployment** - Install only the variant you need
 
 ## Multi-Branch Strategy
