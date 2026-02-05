@@ -18,7 +18,7 @@ let
 
   # GPU target
   gpuArchNum = "110";
-  gpuArchSM = "sm_110";
+  gpuArchSM = "11.0";
 
   # CPU optimization
   cpuFlags = [
@@ -61,7 +61,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_110"
+      echo "GPU Target: 11.0 (Next-gen)"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
