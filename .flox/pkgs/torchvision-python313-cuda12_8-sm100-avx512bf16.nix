@@ -18,7 +18,7 @@ let
 
   # GPU target
   gpuArchNum = "100";
-  gpuArchSM = "sm_100";
+  gpuArchSM = "10.0";
 
   # CPU optimization
   cpuFlags = [
@@ -64,7 +64,7 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: sm_100"
+      echo "GPU Target: 10.0 (Blackwell B100)"
       echo "CPU Features: Optimized"
       echo "CUDA: Enabled"
       echo "PyTorch: ${customPytorch.version}"
