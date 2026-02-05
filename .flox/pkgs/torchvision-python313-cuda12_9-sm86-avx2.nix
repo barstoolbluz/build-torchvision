@@ -1,5 +1,8 @@
 # TorchVision optimized for NVIDIA Ampere RTX 30-series (SM86) + AVX2
 # Package name: torchvision-python313-cuda12_9-sm86-avx2
+#
+# NOTE: CUDA overlay removed - nixpkgs pin 6a030d5 provides CUDA 12.9 by default
+# The overlay was causing build failures with "-Wmissing-prototypes" CMake errors
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -12,9 +15,6 @@ let
       allowUnfree = true;  # Required for CUDA packages
       cudaSupport = true;
     };
-    overlays = [
-      (final: prev: { cudaPackages = final.cudaPackages_12_9; })
-    ];
   };
 
   # GPU target

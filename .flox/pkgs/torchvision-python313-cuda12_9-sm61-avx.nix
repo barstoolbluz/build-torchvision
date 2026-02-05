@@ -1,5 +1,8 @@
 # TorchVision optimized for NVIDIA Pascal GTX 1070/1080 Ti (SM61) + AVX
 # Package name: torchvision-python313-cuda12_9-sm61-avx
+#
+# NOTE: CUDA overlay removed - nixpkgs pin 6a030d5 provides CUDA 12.9 by default
+# The overlay was causing CUDA to not be detected at runtime
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -12,9 +15,6 @@ let
       allowUnfree = true;  # Required for CUDA packages
       cudaSupport = true;
     };
-    overlays = [
-      (final: prev: { cudaPackages = final.cudaPackages_12_9; })
-    ];
   };
 
   # GPU target: SM61 (Pascal consumer - GTX 1070, 1080, 1080 Ti)
