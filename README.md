@@ -11,6 +11,7 @@ Modern PyTorch/TorchVision containers are often bloated with support for every p
 - **Matched optimizations** - Pairs with PyTorch GPU/CPU configurations from `build-pytorch`
 - **Smaller binaries** - Only include code for your target GPU architecture
 - **Better performance** - CPU code optimized for specific instruction sets (AVX2, AVX-512, ARMv8/9)
+- **Faster startup** - Less code to load means faster initialization
 - **Easier deployment** - Install only the variant you need
 
 ## Multi-Branch Strategy
@@ -235,7 +236,7 @@ grep -E 'avx|sve' /proc/cpuinfo
 lscpu | grep avx512f  # ✓ Found AVX-512
 
 # Build variant
-flox build pytorch-python313-cuda12_8-sm86-avx512
+flox build torchvision-python313-cuda12_8-sm86-avx512
 ```
 
 **Scenario 2: H100 Datacenter + AMD EPYC Zen 4**
@@ -244,16 +245,16 @@ flox build pytorch-python313-cuda12_8-sm86-avx512
 lscpu | grep avx512_vnni  # ✓ Found for INT8 inference
 
 # For training
-flox build pytorch-python313-cuda12_8-sm90-avx512
+flox build torchvision-python313-cuda12_8-sm90-avx512
 
 # For INT8 inference
-flox build pytorch-python313-cuda12_8-sm90-avx512vnni
+flox build torchvision-python313-cuda12_8-sm90-avx512vnni
 ```
 
 **Scenario 3: Development Laptop (no GPU)**
 ```bash
 # Maximum compatibility
-flox build pytorch-python313-cpu-avx2
+flox build torchvision-python313-cpu-avx2
 ```
 
 **Scenario 4: AWS Graviton3 + H100**
@@ -262,7 +263,7 @@ flox build pytorch-python313-cpu-avx2
 lscpu | grep sve2  # ✓ Found (Graviton3 has SVE2)
 
 # Build variant
-flox build pytorch-python313-cuda12_8-sm90-armv9
+flox build torchvision-python313-cuda12_8-sm90-armv9
 ```
 
 ## Quick Start
@@ -382,6 +383,10 @@ export USE_CUBLAS=1   # For GPU builds
 Once builds are validated, publish them for team use:
 
 ```bash
+# Ensure git remote is configured
+git remote add origin <your-repo-url>
+git push origin master
+
 # Publish to your Flox organization
 flox publish -o <your-org> torchvision-python313-cuda13_0-sm121-avx512
 flox publish -o <your-org> torchvision-python313-cuda13_0-sm110-armv9
@@ -530,7 +535,7 @@ NIX_BUILD_CORES=8 flox build <variant>
 - [PyTorch CUDA Architecture List](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/)
 - [Flox Build Documentation](https://flox.dev/docs/reference/command-reference/flox-build/)
 - [TorchVision Documentation](https://pytorch.org/vision/stable/index.html)
-- [FLOX.md](./FLOX.md) - Complete Flox environment guide
+- **[../build-pytorch/](../build-pytorch/)** - PyTorch build environment (dependency)
 
 ## Contributing
 
