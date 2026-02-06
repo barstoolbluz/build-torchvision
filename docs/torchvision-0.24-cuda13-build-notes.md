@@ -22,18 +22,19 @@ Building TorchVision with CUDA 13.0 requires a three-stage approach because Torc
 │ Stage 1: nixpkgs_pinned with Overlays                           │
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │ Overlay 1: cudaPackages = cudaPackages_13                   │ │
-│ │ Overlay 2: torch → 2.10.0 (version, src, patches=[])        │ │
+│ │ Overlay 2: magma + CUDA 13.0 patch (clockRate fix)          │ │
+│ │ Overlay 3: torch → 2.10.0 (version, src, patches=[])        │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 │                              ↓                                  │
 │ Stage 2: customPytorch                                          │
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │ torch.override { cudaSupport, gpuTargets }                  │ │
-│ │ + overrideAttrs with ALL CUDA 13.0 fixes:                   │ │
-│ │   - MAGMA filtering                                         │ │
+│ │ + overrideAttrs with CUDA 13.0 fixes:                       │ │
 │ │   - Version fixes                                           │ │
 │ │   - CCCL symlinks                                           │ │
 │ │   - FindCUDAToolkit stub                                    │ │
 │ │   - Gloo CUDA version hint                                  │ │
+│ │   (MAGMA enabled via patched overlay)                       │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 │                              ↓                                  │
 │ Stage 3: TorchVision                                            │
@@ -69,9 +70,9 @@ All CUDA 13.0 compatibility fixes are applied in Stage 2 (`customPytorch`). Torc
 
 ### Summary Table
 
-| Issue | Error Signature | Fix Applied in customPytorch |
-|-------|-----------------|------------------------------|
-| **MAGMA** | `no member named 'clockRate'` | `filterMagma` helper + `USE_MAGMA=OFF` + env var |
+| Issue | Error Signature | Fix Applied |
+|-------|-----------------|-------------|
+| **MAGMA** | `no member named 'clockRate'` | MAGMA patch overlay (commit 235aefb7) |
 | **Version** | `TORCH_FEATURE_VERSION >= TORCH_VERSION_2_10_0` | `version.txt` + `PYTORCH_BUILD_VERSION` env + cmake flag |
 | **CCCL** | `cccl/cuda/std/utility: No such file` | Symlink structure in `/build/cccl-compat` |
 | **FindCUDA** | `file INSTALL cannot find` | Delegating cmake stub in `postPatch` |
@@ -80,19 +81,24 @@ All CUDA 13.0 compatibility fixes are applied in Stage 2 (`customPytorch`). Torc
 
 ### Key Code Patterns
 
-**MAGMA Filtering**:
+**MAGMA Patch Overlay** (Overlay 2):
 ```nix
-filterMagma = deps: builtins.filter (d: !(nixpkgs_pinned.lib.hasPrefix "magma" (d.pname or d.name or ""))) deps;
-
-buildInputs = filterMagma (oldAttrs.buildInputs or []);
-nativeBuildInputs = filterMagma (oldAttrs.nativeBuildInputs or []);
-propagatedBuildInputs = filterMagma (oldAttrs.propagatedBuildInputs or []);
+(final: prev: {
+  magma = prev.magma.overrideAttrs (oldAttrs: {
+    patches = (oldAttrs.patches or []) ++ [
+      (final.fetchpatch {
+        name = "cuda-13.0-clockrate-fix.patch";
+        url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
+        hash = "sha256-i9InbxD5HtfonB/GyF9nQhFmok3jZ73RxGcIciGBGvU=";
+      })
+    ];
+  });
+})
 ```
 
 **CMake Flags**:
 ```nix
 cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
-  "-DUSE_MAGMA=OFF"
   "-DTORCH_BUILD_VERSION=2.10.0"
   "-DCMAKE_CUDA_FLAGS=-I/build/cccl-compat"
   "-DCUDA_VERSION=13.0"
@@ -182,6 +188,9 @@ meta = oldAttrs.meta // {
 ```nix
 # TorchVision 0.24+ with PyTorch 2.10.0 for NVIDIA Blackwell (SM120: RTX 5090) + AVX-512
 # Package name: torchvision-python313-cuda13_0-sm120-avx512
+#
+# MAGMA is enabled via a CUDA 13.0 compatibility patch.
+# Patch reference: https://github.com/icl-utk-edu/magma/issues/61
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -199,7 +208,21 @@ let
       # Overlay 1: Use CUDA 13.0
       (final: prev: { cudaPackages = final.cudaPackages_13; })
 
-      # Overlay 2: Upgrade PyTorch to 2.10.0 with all CUDA 13.0 compatibility fixes
+      # Overlay 2: Patch MAGMA for CUDA 13.0 compatibility
+      # This fixes: 'struct cudaDeviceProp' has no member named 'clockRate'
+      (final: prev: {
+        magma = prev.magma.overrideAttrs (oldAttrs: {
+          patches = (oldAttrs.patches or []) ++ [
+            (final.fetchpatch {
+              name = "cuda-13.0-clockrate-fix.patch";
+              url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
+              hash = "sha256-i9InbxD5HtfonB/GyF9nQhFmok3jZ73RxGcIciGBGvU=";
+            })
+          ];
+        });
+      })
+
+      # Overlay 3: Upgrade PyTorch to 2.10.0 with all CUDA 13.0 compatibility fixes
       (final: prev: {
         python3Packages = prev.python3Packages.override {
           overrides = pfinal: pprev: {
@@ -235,9 +258,6 @@ let
     "-mfma"        # Fused multiply-add
   ];
 
-  # Helper to filter out magma from dependency lists (MAGMA incompatible with CUDA 13.0)
-  filterMagma = deps: builtins.filter (d: !(nixpkgs_pinned.lib.hasPrefix "magma" (d.pname or d.name or ""))) deps;
-
   # Custom PyTorch 2.10.0 with all CUDA 13.0 fixes
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
@@ -248,18 +268,12 @@ let
     # Clear patches
     patches = [];
 
-    # Remove MAGMA from all dependency lists - incompatible with CUDA 13.0
-    buildInputs = filterMagma (oldAttrs.buildInputs or []);
-    nativeBuildInputs = filterMagma (oldAttrs.nativeBuildInputs or []);
-    propagatedBuildInputs = filterMagma (oldAttrs.propagatedBuildInputs or []);
-
     # Limit build parallelism
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
     # CMake flags for CUDA 13.0 compatibility
     cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
-      "-DUSE_MAGMA=OFF"
       "-DTORCH_BUILD_VERSION=2.10.0"
       "-DCMAKE_CUDA_FLAGS=-I/build/cccl-compat"
       "-DCUDA_VERSION=13.0"
@@ -273,7 +287,6 @@ let
       # Version fixes for PyTorch 2.10.0
       export PYTORCH_BUILD_VERSION=2.10.0
       echo "2.10.0" > version.txt
-      export USE_MAGMA=0
 
       # CCCL header path compatibility for CUTLASS
       mkdir -p /build/cccl-compat/cccl
@@ -323,6 +336,7 @@ in
       echo "CPU Features: AVX-512"
       echo "CUDA: 13.0"
       echo "PyTorch: 2.10.0 (with CUDA 13.0 fixes)"
+      echo "MAGMA: Enabled (with CUDA 13.0 patch)"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
@@ -335,6 +349,7 @@ in
         - CPU: x86-64 with AVX-512 instruction set
         - CUDA: 13.0 with compute capability 12.0
         - PyTorch: 2.10.0 (with all CUDA 13.0 compatibility fixes)
+        - MAGMA: Enabled (patched for CUDA 13.0)
         - Python: 3.13
 
         Hardware requirements:
@@ -406,15 +421,15 @@ if torch.cuda.is_available():
 
 ## Known Limitations
 
-1. **MAGMA disabled**: Some sparse matrix operations may be slower without MAGMA GPU acceleration. This is inherited from the PyTorch CUDA 13.0 build.
+1. **TorchVision version depends on nixpkgs pin**: The exact TorchVision version (0.24.x) is determined by the nixpkgs commit `6a030d535719c5190187c4cec156f335e95e3211`. Future nixpkgs pins may have different versions.
 
-2. **TorchVision version depends on nixpkgs pin**: The exact TorchVision version (0.24.x) is determined by the nixpkgs commit `6a030d535719c5190187c4cec156f335e95e3211`. Future nixpkgs pins may have different versions.
+2. **Build time**: The full build includes PyTorch compilation first, then TorchVision. Expect several hours on a 32-core system.
 
-3. **Build time**: The full build includes PyTorch compilation first, then TorchVision. Expect several hours on a 32-core system.
+3. **Overlay fragility**: This approach overrides nixpkgs packages (torch, magma) and may break if upstream packaging changes significantly.
 
-4. **Overlay fragility**: This approach overrides nixpkgs packages and may break if upstream packaging changes significantly.
+4. **Cross-repo dependency**: The PyTorch fixes are documented in detail in the `build-pytorch` repository. Changes to PyTorch build requirements should be reflected in both repositories.
 
-5. **Cross-repo dependency**: The PyTorch fixes are documented in detail in the `build-pytorch` repository. Changes to PyTorch build requirements should be reflected in both repositories.
+5. **MAGMA patch dependency**: The MAGMA CUDA 13.0 patch will become unnecessary once nixpkgs pins a version with the fix (expected in future nixpkgs updates).
 
 ---
 
@@ -425,3 +440,5 @@ if torch.cuda.is_available():
 - [PyTorch 2.10.0 + CUDA 13.0 Build Notes](https://github.com/barstoolbluz/build-pytorch/blob/cuda-13_0/docs/pytorch-2.10-cuda13-build-notes.md) (build-pytorch repository)
 - [NVIDIA CUDA 13.0 Release Notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/)
 - [Nixpkgs CUDA Support](https://nixos.wiki/wiki/CUDA)
+- [MAGMA Library](https://icl.utk.edu/magma/)
+- [MAGMA CUDA 13.0 Fix](https://github.com/icl-utk-edu/magma/issues/61)

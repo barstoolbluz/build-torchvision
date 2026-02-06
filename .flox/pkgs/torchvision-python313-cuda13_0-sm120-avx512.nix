@@ -3,6 +3,9 @@
 #
 # NOTE: This uses the same PyTorch 2.10.0 overlay approach as build-pytorch.
 # See build-pytorch/docs/pytorch-2.10-cuda13-build-notes.md for details on fixes.
+#
+# MAGMA is enabled via a CUDA 13.0 compatibility patch.
+# Patch reference: https://github.com/icl-utk-edu/magma/issues/61
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -20,7 +23,21 @@ let
       # Overlay 1: Use CUDA 13.0
       (final: prev: { cudaPackages = final.cudaPackages_13; })
 
-      # Overlay 2: Upgrade PyTorch to 2.10.0 with all CUDA 13.0 compatibility fixes
+      # Overlay 2: Patch MAGMA for CUDA 13.0 compatibility
+      # This fixes: 'struct cudaDeviceProp' has no member named 'clockRate'
+      (final: prev: {
+        magma = prev.magma.overrideAttrs (oldAttrs: {
+          patches = (oldAttrs.patches or []) ++ [
+            (final.fetchpatch {
+              name = "cuda-13.0-clockrate-fix.patch";
+              url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
+              hash = "sha256-i9InbxD5HtfonB/GyF9nQhFmok3jZ73RxGcIciGBGvU=";
+            })
+          ];
+        });
+      })
+
+      # Overlay 3: Upgrade PyTorch to 2.10.0
       (final: prev: {
         python3Packages = prev.python3Packages.override {
           overrides = pfinal: pprev: {
@@ -45,7 +62,6 @@ let
   };
 
   # GPU target: SM120 (Blackwell consumer - RTX 5090)
-  gpuArchNum = "120";
   gpuArchSM = "12.0";
 
   # CPU optimization: AVX-512
@@ -57,9 +73,6 @@ let
     "-mfma"        # Fused multiply-add
   ];
 
-  # Helper to filter out magma from dependency lists (MAGMA incompatible with CUDA 13.0)
-  filterMagma = deps: builtins.filter (d: !(nixpkgs_pinned.lib.hasPrefix "magma" (d.pname or d.name or ""))) deps;
-
   # Custom PyTorch 2.10.0 with all CUDA 13.0 fixes
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
@@ -70,18 +83,12 @@ let
     # Clear patches
     patches = [];
 
-    # Remove MAGMA from all dependency lists - incompatible with CUDA 13.0
-    buildInputs = filterMagma (oldAttrs.buildInputs or []);
-    nativeBuildInputs = filterMagma (oldAttrs.nativeBuildInputs or []);
-    propagatedBuildInputs = filterMagma (oldAttrs.propagatedBuildInputs or []);
-
     # Limit build parallelism
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
     # CMake flags for CUDA 13.0 compatibility
     cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
-      "-DUSE_MAGMA=OFF"
       "-DTORCH_BUILD_VERSION=2.10.0"
       "-DCMAKE_CUDA_FLAGS=-I/build/cccl-compat"
       "-DCUDA_VERSION=13.0"
@@ -95,7 +102,6 @@ let
       # Version fixes for PyTorch 2.10.0
       export PYTORCH_BUILD_VERSION=2.10.0
       echo "2.10.0" > version.txt
-      export USE_MAGMA=0
 
       # CCCL header path compatibility for CUTLASS
       mkdir -p /build/cccl-compat/cccl
@@ -145,6 +151,7 @@ in
       echo "CPU Features: AVX-512"
       echo "CUDA: 13.0"
       echo "PyTorch: 2.10.0 (with CUDA 13.0 fixes)"
+      echo "MAGMA: Enabled (with CUDA 13.0 patch)"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
@@ -157,6 +164,7 @@ in
         - CPU: x86-64 with AVX-512 instruction set
         - CUDA: 13.0 with compute capability 12.0
         - PyTorch: 2.10.0 (with all CUDA 13.0 compatibility fixes)
+        - MAGMA: Enabled (patched for CUDA 13.0)
         - Python: 3.13
 
         Hardware requirements:
