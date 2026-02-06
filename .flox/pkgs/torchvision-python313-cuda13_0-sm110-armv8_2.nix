@@ -1,43 +1,121 @@
-# TorchVision optimized for NVIDIA DRIVE Thor (SM110) + ARMv8.2
+# TorchVision 0.24+ with PyTorch 2.10.0 for NVIDIA DRIVE Thor (SM110) + ARMv8.2
 # Package name: torchvision-python313-cuda13_0-sm110-armv8_2
+#
+# NOTE: This uses the same PyTorch 2.10.0 overlay approach as build-pytorch.
+# See build-pytorch/docs/pytorch-2.10-cuda13-build-notes.md for details on fixes.
 
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # Import nixpkgs at a specific revision with CUDA 13.0 (required for SM110)
-  # TODO: Pin to nixpkgs commit where cudaPackages defaults to CUDA 13.0
+  # Import nixpkgs at a specific revision with CUDA 13.0
   nixpkgs_pinned = import (builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3.tar.gz";
-    # You can add the sha256 here once known for reproducibility
+    url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
   }) {
     config = {
-      allowUnfree = true;  # Required for CUDA packages
+      allowUnfree = true;
+      allowBroken = true;
       cudaSupport = true;
     };
+    overlays = [
+      # Overlay 1: Use CUDA 13.0
+      (final: prev: { cudaPackages = final.cudaPackages_13; })
+
+      # Overlay 2: Upgrade PyTorch to 2.10.0 with all CUDA 13.0 compatibility fixes
+      (final: prev: {
+        python3Packages = prev.python3Packages.override {
+          overrides = pfinal: pprev: {
+            torch = pprev.torch.overrideAttrs (oldAttrs: rec {
+              version = "2.10.0";
+
+              src = prev.fetchFromGitHub {
+                owner = "pytorch";
+                repo = "pytorch";
+                rev = "v${version}";
+                hash = "sha256-RKiZLHBCneMtZKRgTEuW1K7+Jpi+tx11BMXuS1jC1xQ=";
+                fetchSubmodules = true;
+              };
+
+              # Clear patches - nixpkgs patches are for 2.9.1 and won't apply to 2.10.0
+              patches = [];
+            });
+          };
+        };
+      })
+    ];
   };
 
-  # GPU target
+  # GPU target: SM110 (Blackwell Thor/NVIDIA DRIVE - automotive/edge computing)
   gpuArchNum = "110";
   gpuArchSM = "11.0";
 
-  # CPU optimization
+  # CPU optimization: ARMv8.2-A
   cpuFlags = [
     "-march=armv8.2-a+fp16+dotprod"
   ];
 
-  # Custom PyTorch with matching GPU/CPU configuration
+  # Helper to filter out magma from dependency lists (MAGMA incompatible with CUDA 13.0)
+  filterMagma = deps: builtins.filter (d: !(nixpkgs_pinned.lib.hasPrefix "magma" (d.pname or d.name or ""))) deps;
+
+  # Custom PyTorch 2.10.0 with all CUDA 13.0 fixes
   customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
     cudaSupport = true;
     gpuTargets = [ gpuArchSM ];
   }).overrideAttrs (oldAttrs: {
-    # Limit build parallelism to prevent memory saturation
+    pname = "pytorch210-for-torchvision-sm110-armv8_2";
+
+    # Clear patches
+    patches = [];
+
+    # Remove MAGMA from all dependency lists - incompatible with CUDA 13.0
+    buildInputs = filterMagma (oldAttrs.buildInputs or []);
+    nativeBuildInputs = filterMagma (oldAttrs.nativeBuildInputs or []);
+    propagatedBuildInputs = filterMagma (oldAttrs.propagatedBuildInputs or []);
+
+    # Limit build parallelism
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
+
+    # CMake flags for CUDA 13.0 compatibility
+    cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
+      "-DUSE_MAGMA=OFF"
+      "-DTORCH_BUILD_VERSION=2.10.0"
+      "-DCMAKE_CUDA_FLAGS=-I/build/cccl-compat"
+      "-DCUDA_VERSION=13.0"
+    ];
 
     preConfigure = (oldAttrs.preConfigure or "") + ''
       export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
       export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
       export MAX_JOBS=32
+
+      # Version fixes for PyTorch 2.10.0
+      export PYTORCH_BUILD_VERSION=2.10.0
+      echo "2.10.0" > version.txt
+      export USE_MAGMA=0
+
+      # CCCL header path compatibility for CUTLASS
+      mkdir -p /build/cccl-compat/cccl
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/cuda /build/cccl-compat/cccl/cuda
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/cub /build/cccl-compat/cccl/cub
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/thrust /build/cccl-compat/cccl/thrust
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/nv /build/cccl-compat/cccl/nv
+      export CXXFLAGS="-I/build/cccl-compat $CXXFLAGS"
+      export CFLAGS="-I/build/cccl-compat $CFLAGS"
+      export CUDAFLAGS="-I/build/cccl-compat $CUDAFLAGS"
+    '';
+
+    # FindCUDAToolkit.cmake delegating stub
+    postPatch = (oldAttrs.postPatch or "") + ''
+      mkdir -p cmake/Modules
+      cat > cmake/Modules/FindCUDAToolkit.cmake << 'EOF'
+# Delegating stub for FindCUDAToolkit
+if(NOT CUDAToolkit_FOUND)
+  set(_orig_module_path "''${CMAKE_MODULE_PATH}")
+  list(FILTER CMAKE_MODULE_PATH EXCLUDE REGEX "cmake/Modules")
+  include(FindCUDAToolkit)
+  set(CMAKE_MODULE_PATH "''${_orig_module_path}")
+endif()
+EOF
     '';
   });
 
@@ -47,7 +125,7 @@ in
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda13_0-sm110-armv8_2";
 
-    # Limit build parallelism to prevent memory saturation
+    # Limit build parallelism
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
@@ -59,16 +137,29 @@ in
       echo "========================================="
       echo "TorchVision Build Configuration"
       echo "========================================="
-      echo "GPU Target: 11.0 (Next-gen)"
-      echo "CPU Features: Optimized"
-      echo "CUDA: Enabled"
-      echo "PyTorch: ${customPytorch.version}"
+      echo "GPU Target: ${gpuArchSM} (DRIVE Thor: SM110)"
+      echo "CPU Features: ARMv8.2 + FP16 + DotProd"
+      echo "CUDA: 13.0"
+      echo "PyTorch: 2.10.0 (with CUDA 13.0 fixes)"
       echo "TorchVision: ${oldAttrs.version}"
       echo "========================================="
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision optimized for NVIDIA DRIVE Thor (SM110) + ARMv8.2";
-      platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
+      description = "TorchVision for NVIDIA DRIVE Thor (SM110) + ARMv8.2 with PyTorch 2.10.0";
+      longDescription = ''
+        Custom TorchVision build with targeted optimizations:
+        - GPU: NVIDIA Blackwell Thor/DRIVE architecture (SM110)
+        - CPU: ARMv8.2-A with FP16 and dot product instructions
+        - CUDA: 13.0 with compute capability 11.0
+        - PyTorch: 2.10.0 (with all CUDA 13.0 compatibility fixes)
+        - Python: 3.13
+
+        Hardware requirements:
+        - GPU: NVIDIA DRIVE platforms (Thor, Orin+)
+        - CPU: ARM Neoverse N1, Cortex-A75+, automotive ARM SoCs
+        - Driver: NVIDIA 580+ required
+      '';
+      platforms = [ "aarch64-linux" ];
     };
   })
