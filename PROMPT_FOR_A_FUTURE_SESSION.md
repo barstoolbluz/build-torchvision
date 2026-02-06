@@ -80,13 +80,26 @@ After creating each new variant:
 
 ## Alignment with build-pytorch
 
-Ensure TorchVision variants align with their PyTorch counterparts:
+### Variants in both repos
 
-| PyTorch Variant | TorchVision Variant | Status |
-|-----------------|---------------------|--------|
-| sm110-armv8_2 | sm110-armv8_2 | ✓ Exists |
-| sm110-armv9 | sm110-armv9 | ✓ Exists |
-| sm120-avx | sm120-avx | **Missing** |
-| sm120-avx512 | sm120-avx512 | ✓ Exists |
-| sm121-armv8_2 | sm121-armv8_2 | ✓ Exists (TorchVision only) |
-| sm121-armv9 | sm121-armv9 | ✓ Exists (needs PyTorch counterpart) |
+| Variant | PyTorch | TorchVision |
+|---------|---------|-------------|
+| sm110-armv8_2 | ✓ (needs refactor) | ✓ |
+| sm110-armv9 | ✓ (needs refactor) | ✓ |
+| sm120-avx512 | ✓ | ✓ |
+
+### TorchVision missing (PyTorch has)
+
+| Variant | Notes |
+|---------|-------|
+| sm120-avx | Broader x86 compatibility - **create this** |
+| sm121-armv9-nightly | Different build approach (from-scratch) |
+
+### PyTorch missing (TorchVision has)
+
+| Variant | Notes |
+|---------|-------|
+| sm121-armv8_2 | TorchVision builds PyTorch internally; standalone PyTorch variant should be created in build-pytorch |
+| sm121-armv9 | TorchVision builds PyTorch internally; standalone PyTorch variant should be created in build-pytorch |
+
+**Note:** TorchVision variants with no standalone PyTorch counterpart work because they build `customPytorch` internally. However, for consistency, standalone PyTorch variants should eventually exist in build-pytorch for all TorchVision variants.
