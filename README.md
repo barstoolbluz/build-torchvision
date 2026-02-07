@@ -1,6 +1,6 @@
 # TorchVision Custom Build Environment
 
-> **You are on the `cuda-13_0` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0 (36 variants)
+> **You are on the `cuda-13_0` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0 (41 variants)
 
 This Flox environment builds custom TorchVision variants with targeted optimizations for specific GPU architectures and CPU instruction sets. Each variant pairs with a matching PyTorch build from `build-pytorch`.
 
@@ -22,7 +22,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 |--------|-------------|---------|------|----------|---------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 44 | Stable baseline |
 | `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 50 | Full coverage + SM103 (B300) |
-| **`cuda-13_0`** ⬅️ | **TBD** | **2.10** | **13.0** | **36** | **This branch** — Full matrix + SM110/SM121 |
+| **`cuda-13_0`** ⬅️ | **TBD** | **2.10** | **13.0** | **41** | **This branch** — Full matrix SM75–SM121 |
 
 Different GPU architectures require different minimum CUDA versions — SM103 needs CUDA 12.9+, SM110/SM121 need CUDA 13.0+.
 
@@ -36,13 +36,13 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 
 ## Build Matrix (this branch: cuda-13_0)
 
-**This branch builds TorchVision TBD with PyTorch 2.10 + CUDA 13.0** — full 36-variant matrix including SM110 (DRIVE Thor) and SM121 (DGX Spark) which require CUDA 13.0+.
+**This branch builds TorchVision TBD with PyTorch 2.10 + CUDA 13.0** — full 41-variant matrix from SM75 (Turing) through SM121 (DGX Spark).
 
 ### Variant Matrix (this branch)
 
-This branch provides 36 variants covering all GPU architectures and CPU ISAs:
+This branch provides 41 variants covering all GPU architectures and CPU ISAs:
 
-#### GPU Variants (x86-64) — 28 total
+#### GPU Variants (x86-64) — 32 total
 
 | GPU Architecture | AVX2 | AVX-512 | AVX-512 BF16 | AVX-512 VNNI |
 |------------------|------|---------|--------------|--------------|
@@ -53,6 +53,7 @@ This branch provides 36 variants covering all GPU architectures and CPU ISAs:
 | **SM89 (RTX 40 series)** | ✓ | ✓ | ✓ | ✓ |
 | **SM86 (RTX 30 series)** | ✓ | ✓ | ✓ | ✓ |
 | **SM80 (A100)** | ✓ | ✓ | ✓ | ✓ |
+| **SM75 (T4/RTX 20)** | ✓ | ✓ | ✓ | ✓ |
 
 **Note:** SM110 (DRIVE Thor) and SM121 (DGX Spark) are ARM-only platforms and do not have x86 variants.
 
@@ -65,16 +66,17 @@ This branch provides 36 variants covering all GPU architectures and CPU ISAs:
 
 ARM variants are available for GPU architectures with ARM deployment targets (DGX Spark with Grace CPU, DRIVE Thor).
 
-#### CPU-only Variants — 4 total
+#### CPU-only Variants — 5 total
 
-| ISA | Package Name |
-|-----|--------------|
-| AVX2 | `torchvision-python313-cpu-avx2` |
-| AVX-512 | `torchvision-python313-cpu-avx512` |
-| AVX-512 BF16 | `torchvision-python313-cpu-avx512bf16` |
-| AVX-512 VNNI | `torchvision-python313-cpu-avx512vnni` |
+| ISA | Package Name | Hardware Target |
+|-----|--------------|-----------------|
+| AVX | `torchvision-python313-cpu-avx` | Sandy Bridge+ (2011+) - Maximum compatibility |
+| AVX2 | `torchvision-python313-cpu-avx2` | Haswell+ (2013+) |
+| AVX-512 | `torchvision-python313-cpu-avx512` | Skylake-X+ (2017+) |
+| AVX-512 BF16 | `torchvision-python313-cpu-avx512bf16` | Cooper Lake+ (2020+) |
+| AVX-512 VNNI | `torchvision-python313-cpu-avx512vnni` | Skylake-SP+ (2017+) |
 
-**Total: 36 variants** (28 GPU x86 + 4 GPU ARM + 4 CPU-only)
+**Total: 41 variants** (32 GPU x86 + 4 GPU ARM + 5 CPU-only)
 
 ### Variants on Other Branches
 
@@ -142,17 +144,26 @@ git checkout main && flox build torchvision-python313-cuda12_8-sm90-avx512
 - Driver: NVIDIA 450+
 - Features: Multi-Instance GPU (MIG), Tensor cores (3rd gen), FP64 Tensor cores
 
+**SM75 (Turing) - Compute Capability 7.5**
+- Consumer: RTX 2080 Ti, RTX 2080, RTX 2070, RTX 2060
+- Datacenter: T4, Quadro RTX 8000, Quadro RTX 6000
+- Driver: NVIDIA 418+
+- Features: RT cores (1st gen), Tensor cores (2nd gen)
+
 **SM61 (Pascal) - Compute Capability 6.1**
 - Consumer: GTX 1070, GTX 1080, GTX 1080 Ti
 - Driver: NVIDIA 390+
 - Note: cuDNN 9.11+ dropped SM < 7.5 support. FBGEMM, MKLDNN, NNPACK disabled (require AVX2+) for AVX variant. AVX2 variant disables cuDNN only.
 
-**Other Supported Architectures** (no variants yet, add as needed):
-- SM75 (Turing): T4, RTX 2080 Ti, Quadro RTX 8000
-
 ### CPU Variant Guide
 
 Choose the right CPU variant based on your hardware and workload:
+
+**AVX (Maximum Compatibility)**
+- Hardware: Intel Sandy Bridge+ (2011+), AMD Bulldozer+ (2011+)
+- Use for: Maximum CPU compatibility, legacy systems
+- Choose when: Running on older CPUs without AVX2 support
+- Note: Disables FBGEMM, MKLDNN, NNPACK (require AVX2+)
 
 **AVX2 (Broad Compatibility)**
 - Hardware: Intel Haswell+ (2013+), AMD Zen 1+ (2017+)
@@ -218,6 +229,7 @@ nvidia-smi --query-gpu=compute_cap --format=csv,noheader
 | RTX 4090, RTX 4080, RTX 4070 series, L4, L40 | 8.9 | **SM89** |
 | RTX 3090, RTX 3090 Ti, RTX 3080 Ti, A5000, A40 | 8.6 | **SM86** |
 | A100, A30 | 8.0 | **SM80** |
+| T4, RTX 2080 Ti, Quadro RTX 8000 | 7.5 | **SM75** |
 | GTX 1070, 1080, 1080 Ti | 6.1 | **SM61** |
 
 **3. Which CPU ISA should you use?**
@@ -366,9 +378,9 @@ build-torchvision/
 ├── .flox/
 │   ├── env/
 │   │   └── manifest.toml          # Build environment definition
-│   └── pkgs/                      # Nix expression builds (36 variants on this branch)
-│       ├── torchvision-python313-cuda13_0-sm*.nix       # 32 GPU variants (7 x86 archs × 4 ISAs + 2 ARM archs × 2 ISAs)
-│       └── torchvision-python313-cpu-*.nix              # 4 CPU-only variants
+│   └── pkgs/                      # Nix expression builds (41 variants on this branch)
+│       ├── torchvision-python313-cuda13_0-sm*.nix       # 36 GPU variants (8 x86 archs × 4 ISAs + 2 ARM archs × 2 ISAs)
+│       └── torchvision-python313-cpu-*.nix              # 5 CPU-only variants
 └── README.md
 ```
 
