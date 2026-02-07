@@ -311,13 +311,13 @@ flox build torchvision-python313-cuda12_8-sm90-armv9
 flox activate
 
 # Build a specific variant
-flox build torchvision-python313-cuda13_0-sm121-avx512
+flox build torchvision-python313-cuda13_0-sm90-avx512
 
-# The result will be in ./result-torchvision-python313-cuda13_0-sm121-avx512/
-ls -lh result-torchvision-python313-cuda13_0-sm121-avx512/
+# The result will be in ./result-torchvision-python313-cuda13_0-sm90-avx512/
+ls -lh result-torchvision-python313-cuda13_0-sm90-avx512/
 
 # Test the build
-./result-torchvision-python313-cuda13_0-sm121-avx512/bin/python -c "
+./result-torchvision-python313-cuda13_0-sm90-avx512/bin/python -c "
 import torch, torchvision
 print(f'PyTorch: {torch.__version__}')
 print(f'TorchVision: {torchvision.__version__}')
@@ -367,7 +367,7 @@ customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
 (nixpkgs_pinned.python3Packages.torchvision.override {
   torch = customPytorch;
 }).overrideAttrs (oldAttrs: {
-  pname = "torchvision-python313-cuda13_0-sm121-avx512";
+  pname = "torchvision-python313-cuda13_0-sm90-avx512";
   ...
 })
 ```
@@ -426,11 +426,11 @@ git remote add origin <your-repo-url>
 git push origin master
 
 # Publish to your Flox organization
-flox publish -o <your-org> torchvision-python313-cuda13_0-sm121-avx512
+flox publish -o <your-org> torchvision-python313-cuda13_0-sm90-avx512
 flox publish -o <your-org> torchvision-python313-cuda13_0-sm110-armv9
 
 # Users install with:
-flox install <your-org>/torchvision-python313-cuda13_0-sm121-avx512
+flox install <your-org>/torchvision-python313-cuda13_0-sm90-avx512
 ```
 
 ## Build Times & Requirements
@@ -454,10 +454,10 @@ To add more variants:
 4. Commit: `git add .flox/pkgs/your-new-variant.nix && git commit`
 5. Build: `flox build your-new-variant`
 
-### Example: Adding SM121 (DGX Spark) with AVX-512
+### Example: Adding SM90 (Hopper) with AVX-512
 
 ```nix
-# .flox/pkgs/torchvision-python313-cuda13_0-sm121-avx512.nix
+# .flox/pkgs/torchvision-python313-cuda13_0-sm90-avx512.nix
 { pkgs ? import <nixpkgs> {} }:
 
 let
@@ -471,9 +471,9 @@ let
     };
   };
 
-  # GPU target: SM121 (DGX Spark)
-  gpuArchNum = "121";
-  gpuArchSM = "sm_121";
+  # GPU target: SM90 (Hopper)
+  gpuArchNum = "90";
+  gpuArchSM = "sm_90";
 
   # CPU optimization: AVX-512
   cpuFlags = [
@@ -502,7 +502,7 @@ in
   (nixpkgs_pinned.python3Packages.torchvision.override {
     torch = customPytorch;
   }).overrideAttrs (oldAttrs: {
-    pname = "torchvision-python313-cuda13_0-sm121-avx512";
+    pname = "torchvision-python313-cuda13_0-sm90-avx512";
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
@@ -513,12 +513,12 @@ in
     '';
 
     meta = oldAttrs.meta // {
-      description = "TorchVision for NVIDIA DGX Spark (SM121) + AVX-512";
+      description = "TorchVision for NVIDIA Hopper (SM90) + AVX-512";
       longDescription = ''
         Custom TorchVision build with targeted optimizations:
-        - GPU: NVIDIA DGX Spark architecture (SM121)
+        - GPU: NVIDIA Hopper architecture (SM90) - H100, H200
         - CPU: x86-64 with AVX-512 instruction set
-        - CUDA: 13.0 with compute capability 12.1
+        - CUDA: 13.0 with compute capability 9.0
         - BLAS: cuBLAS for GPU operations
         - Python: 3.13
       '';
