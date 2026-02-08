@@ -1,0 +1,173 @@
+# TorchVision 0.24+ with PyTorch 2.10.0 for NVIDIA Rubin (Future) (SM120) + ARMv8.2
+# Package name: torchvision-python313-cuda13_0-sm120-armv8_2
+#
+# NOTE: This uses the same PyTorch 2.10.0 overlay approach as build-pytorch.
+# See build-pytorch/docs/pytorch-2.10-cuda13-build-notes.md for details on fixes.
+#
+# MAGMA is enabled via a CUDA 13.0 compatibility patch.
+# Patch reference: https://github.com/icl-utk-edu/magma/issues/61
+
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  # Import nixpkgs at a specific revision with CUDA 13.0
+  nixpkgs_pinned = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/6a030d535719c5190187c4cec156f335e95e3211.tar.gz";
+  }) {
+    config = {
+      allowUnfree = true;
+      allowBroken = true;
+      cudaSupport = true;
+    };
+    overlays = [
+      # Overlay 1: Use CUDA 13.0
+      (final: prev: { cudaPackages = final.cudaPackages_13; })
+
+      # Overlay 2: Patch MAGMA for CUDA 13.0 compatibility
+      # This fixes: 'struct cudaDeviceProp' has no member named 'clockRate'
+      (final: prev: {
+        magma = prev.magma.overrideAttrs (oldAttrs: {
+          patches = (oldAttrs.patches or []) ++ [
+            (final.fetchpatch {
+              name = "cuda-13.0-clockrate-fix.patch";
+              url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
+              hash = "sha256-i9InbxD5HtfonB/GyF9nQhFmok3jZ73RxGcIciGBGvU=";
+            })
+          ];
+        });
+      })
+
+      # Overlay 3: Upgrade PyTorch to 2.10.0
+      (final: prev: {
+        python3Packages = prev.python3Packages.override {
+          overrides = pfinal: pprev: {
+            torch = pprev.torch.overrideAttrs (oldAttrs: rec {
+              version = "2.10.0";
+
+              src = prev.fetchFromGitHub {
+                owner = "pytorch";
+                repo = "pytorch";
+                rev = "v${version}";
+                hash = "sha256-RKiZLHBCneMtZKRgTEuW1K7+Jpi+tx11BMXuS1jC1xQ=";
+                fetchSubmodules = true;
+              };
+
+              # Clear patches - nixpkgs patches are for 2.9.1 and won't apply to 2.10.0
+              patches = [];
+            });
+          };
+        };
+      })
+    ];
+  };
+
+  # GPU target: SM120 (Blackwell Thor/NVIDIA DRIVE - automotive/edge computing)
+  gpuArchSM = "12.0";
+
+  # CPU optimization: ARMv8.2-A
+  cpuFlags = [
+    "-march=armv8.2-a+fp16+dotprod"
+  ];
+
+  # Custom PyTorch 2.10.0 with all CUDA 13.0 fixes
+  customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
+    cudaSupport = true;
+    gpuTargets = [ gpuArchSM ];
+  }).overrideAttrs (oldAttrs: {
+    pname = "pytorch210-for-torchvision-sm120-armv8_2";
+
+    # Clear patches
+    patches = [];
+
+    # Limit build parallelism
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+
+    # CMake flags for CUDA 13.0 compatibility
+    cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
+      "-DTORCH_BUILD_VERSION=2.10.0"
+      "-DCMAKE_CUDA_FLAGS=-I/build/cccl-compat"
+      "-DCUDA_VERSION=13.0"
+    ];
+
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export MAX_JOBS=32
+
+      # Version fixes for PyTorch 2.10.0
+      export PYTORCH_BUILD_VERSION=2.10.0
+      echo "2.10.0" > version.txt
+
+      # CCCL header path compatibility for CUTLASS
+      mkdir -p /build/cccl-compat/cccl
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/cuda /build/cccl-compat/cccl/cuda
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/cub /build/cccl-compat/cccl/cub
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/thrust /build/cccl-compat/cccl/thrust
+      ln -sf ${nixpkgs_pinned.cudaPackages.cuda_cccl}/include/nv /build/cccl-compat/cccl/nv
+      export CXXFLAGS="-I/build/cccl-compat $CXXFLAGS"
+      export CFLAGS="-I/build/cccl-compat $CFLAGS"
+      export CUDAFLAGS="-I/build/cccl-compat $CUDAFLAGS"
+    '';
+
+    # FindCUDAToolkit.cmake delegating stub
+    postPatch = (oldAttrs.postPatch or "") + ''
+      mkdir -p cmake/Modules
+      cat > cmake/Modules/FindCUDAToolkit.cmake << 'EOF'
+# Delegating stub for FindCUDAToolkit
+if(NOT CUDAToolkit_FOUND)
+  set(_orig_module_path "''${CMAKE_MODULE_PATH}")
+  list(FILTER CMAKE_MODULE_PATH EXCLUDE REGEX "cmake/Modules")
+  include(FindCUDAToolkit)
+  set(CMAKE_MODULE_PATH "''${_orig_module_path}")
+endif()
+EOF
+    '';
+  });
+
+in
+  (nixpkgs_pinned.python3Packages.torchvision.override {
+    torch = customPytorch;
+  }).overrideAttrs (oldAttrs: {
+    pname = "torchvision-python313-cuda13_0-sm120-armv8_2";
+
+    # Limit build parallelism
+    ninjaFlags = [ "-j32" ];
+    requiredSystemFeatures = [ "big-parallel" ];
+
+    preConfigure = (oldAttrs.preConfigure or "") + ''
+      export CXXFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CXXFLAGS"
+      export CFLAGS="${nixpkgs_pinned.lib.concatStringsSep " " cpuFlags} $CFLAGS"
+      export MAX_JOBS=32
+
+      echo "========================================="
+      echo "TorchVision Build Configuration"
+      echo "========================================="
+      echo "GPU Target: ${gpuArchSM} (Rubin (Future): SM120)"
+      echo "CPU Features: ARMv8.2 + FP16 + DotProd"
+      echo "CUDA: 13.0"
+      echo "PyTorch: 2.10.0 (with CUDA 13.0 fixes)"
+      echo "MAGMA: Enabled (with CUDA 13.0 patch)"
+      echo "TorchVision: ${oldAttrs.version}"
+      echo "========================================="
+    '';
+
+    meta = oldAttrs.meta // {
+      description = "TorchVision for NVIDIA Rubin (Future) (SM120) + ARMv8.2 with PyTorch 2.10.0";
+      longDescription = ''
+        Custom TorchVision build with targeted optimizations:
+        - GPU: NVIDIA Blackwell Thor/DRIVE architecture (SM120)
+        - CPU: ARMv8.2-A with FP16 and dot product instructions
+        - CUDA: 13.0 with compute capability 11.0
+        - PyTorch: 2.10.0 (with all CUDA 13.0 compatibility fixes)
+        - MAGMA: Enabled (patched for CUDA 13.0)
+        - Python: 3.13
+
+        Hardware requirements:
+        - GPU: NVIDIA DRIVE platforms (Thor, Orin+)
+        - CPU: ARM Neoverse N1, Cortex-A75+, automotive ARM SoCs
+        - Driver: NVIDIA 580+ required
+      '';
+      platforms = [ "aarch64-linux" ];
+    };
+  })
