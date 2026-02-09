@@ -1,6 +1,6 @@
 # TorchVision Custom Build Environment
 
-> **You are on the `main` branch** — TorchVision 0.23.0 + PyTorch 2.8.0 + CUDA 12.8 (44 variants)
+> **You are on the `main` branch** — TorchVision 0.23.0 + PyTorch 2.8.0 + CUDA 12.8 (45 variants)
 
 This Flox environment builds custom TorchVision variants with targeted optimizations for specific GPU architectures and CPU instruction sets. Each variant pairs with a matching PyTorch build from `build-pytorch`.
 
@@ -20,7 +20,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
-| **`main`** ⬅️ | **0.23.0** | **2.8.0** | **12.8** | **44** | **Stable baseline** |
+| **`main`** ⬅️ | **0.23.0** | **2.8.0** | **12.8** | **45** | **Stable baseline + Darwin MPS** |
 | `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 57 | Full coverage + SM75/SM103 |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | 59 | Full matrix SM75–SM121 + ARM |
 
@@ -36,7 +36,7 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 
 ## Build Matrix (this branch: main)
 
-**This branch builds TorchVision 0.23.0 with PyTorch 2.8.0 + CUDA 12.8** — 44 variants covering GPU architectures from SM61 (Pascal) to SM120 (Blackwell), plus 6 CPU-only variants.
+**This branch builds TorchVision 0.23.0 with PyTorch 2.8.0 + CUDA 12.8** — 45 variants covering GPU architectures from SM61 (Pascal) to SM120 (Blackwell), plus 6 CPU-only variants and 1 Darwin MPS variant.
 
 ### Complete Variant Matrix
 
@@ -86,6 +86,7 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 | | AVX-512 VNNI | `torchvision-python313-cuda12_8-sm120-avx512vnni` | RTX 5090 + INT8 inference |
 | | ARMv8.2 | `torchvision-python313-cuda12_8-sm120-armv8_2` | RTX 5090 + ARM Graviton2 |
 | | ARMv9 | `torchvision-python313-cuda12_8-sm120-armv9` | RTX 5090 + ARM Grace |
+| **Darwin MPS** | — | `torchvision-python313-darwin-mps` | Apple Silicon (M1–M4) with Metal GPU |
 
 ### Variants on Other Branches
 
@@ -201,9 +202,27 @@ Choose the right CPU variant based on your hardware and workload:
 - Choose when: You have Grace, Graviton3+, or other modern ARM processors
 - Detection: `lscpu | grep sve` or `/proc/cpuinfo` shows `sve` and `sve2`
 
+### Darwin / macOS Variants
+
+| Package | GPU | Platform | Requirements |
+|---------|-----|----------|--------------|
+| `torchvision-python313-darwin-mps` | Metal Performance Shaders | aarch64-darwin | macOS 12.3+, M1/M2/M3/M4 |
+
+```bash
+# Build on Apple Silicon Mac
+flox build torchvision-python313-darwin-mps
+```
+
+- **MPS (Metal Performance Shaders)**: GPU-accelerated builds for Apple Silicon Macs
+- BLAS: vecLib (Apple Accelerate framework)
+
 ## Variant Selection Guide
 
 ### Quick Decision Tree
+
+**0. Are you on macOS?**
+- Apple Silicon (M1/M2/M3/M4) → Use `torchvision-python313-darwin-mps`
+- Linux → Continue to step 1
 
 **1. Do you have an NVIDIA GPU?**
 - NO → Use CPU-only variant (choose CPU ISA below)
@@ -294,6 +313,11 @@ lscpu | grep sve2  # ✓ Found (Graviton3 has SVE2)
 flox build torchvision-python313-cuda12_8-sm90-armv9
 ```
 
+**Scenario 5: MacBook Pro M3**
+```bash
+flox build torchvision-python313-darwin-mps
+```
+
 ## Quick Start
 
 ```bash
@@ -369,6 +393,7 @@ customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
 | GPU (CUDA) | cuBLAS | NVIDIA's optimized GPU library |
 | CPU (x86-64) | OpenBLAS | Open-source, good performance |
 | CPU (alternative) | Intel MKL | Proprietary, slightly faster, available in Flox catalog as `mkl` |
+| Darwin MPS | vecLib | Apple Accelerate framework (via $SDKROOT) |
 
 ## Architecture
 
@@ -377,7 +402,7 @@ build-torchvision/
 ├── .flox/
 │   ├── env/
 │   │   └── manifest.toml          # Build environment definition
-│   └── pkgs/                      # Nix expression builds (44 variants on main)
+│   └── pkgs/                      # Nix expression builds (45 variants on main)
 │       ├── torchvision-python313-cpu-*.nix              # 6 CPU-only variants
 │       ├── torchvision-python313-cuda12_8-sm61-*.nix    # 2 SM61 variants (Pascal)
 │       ├── torchvision-python313-cuda12_8-sm80-*.nix    # 6 SM80 variants
@@ -385,7 +410,8 @@ build-torchvision/
 │       ├── torchvision-python313-cuda12_8-sm89-*.nix    # 6 SM89 variants
 │       ├── torchvision-python313-cuda12_8-sm90-*.nix    # 6 SM90 variants
 │       ├── torchvision-python313-cuda12_8-sm100-*.nix   # 6 SM100 variants
-│       └── torchvision-python313-cuda12_8-sm120-*.nix   # 6 SM120 variants
+│       ├── torchvision-python313-cuda12_8-sm120-*.nix   # 6 SM120 variants
+│       └── torchvision-python313-darwin-mps.nix         # MPS variant (Apple Silicon)
 ├── README.md
 ├── FLOX.md
 ├── QUICKSTART.md
@@ -561,6 +587,20 @@ Verify the SM architecture is supported by your PyTorch version:
 Consider using Intel MKL instead of OpenBLAS:
 ```nix
 blasBackend = mkl;  # Instead of openblas
+```
+
+### MPS not available on Apple Silicon
+
+Ensure you're running macOS 12.3 or later:
+```bash
+sw_vers -productVersion  # Should be 12.3+
+```
+
+Verify MPS is available in Python:
+```python
+import torch
+print(torch.backends.mps.is_available())  # Should be True
+print(torch.backends.mps.is_built())      # Should be True
 ```
 
 ### Build takes too long
