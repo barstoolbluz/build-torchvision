@@ -157,6 +157,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA RTX 30 series (SM86, Ampere) + AVX-512 VNNI with PyTorch 2.10.0";
       longDescription = ''

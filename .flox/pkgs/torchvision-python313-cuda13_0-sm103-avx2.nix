@@ -154,6 +154,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA B300 Datacenter (SM103) + AVX2 with PyTorch 2.10.0";
       longDescription = ''

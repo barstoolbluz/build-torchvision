@@ -156,6 +156,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA T4/RTX 2080 Ti (SM75, Turing) + AVX-512 with PyTorch 2.10.0";
       longDescription = ''

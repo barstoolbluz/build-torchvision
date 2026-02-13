@@ -157,6 +157,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA A100/A30 (SM80, Ampere DC) + AVX-512 BF16 with PyTorch 2.10.0";
       longDescription = ''

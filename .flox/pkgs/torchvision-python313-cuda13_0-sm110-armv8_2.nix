@@ -152,6 +152,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA DRIVE Thor (SM110) + ARMv8.2 with PyTorch 2.10.0";
       longDescription = ''

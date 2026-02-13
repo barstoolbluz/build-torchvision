@@ -67,6 +67,11 @@ in
       export MAX_JOBS=32
       echo "CPU-only build | CPU: ARMv9 | PyTorch: 2.10.0"
     '';
+
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision CPU-only + ARMv9 with PyTorch 2.10.0";
       longDescription = ''

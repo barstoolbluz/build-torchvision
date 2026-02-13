@@ -157,6 +157,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA H100/H200 (SM90, Hopper) + AVX-512 VNNI with PyTorch 2.10.0";
       longDescription = ''

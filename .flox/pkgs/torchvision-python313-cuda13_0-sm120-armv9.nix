@@ -152,6 +152,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision for NVIDIA Rubin (Future) (SM120) + ARMv9 with PyTorch 2.10.0";
       longDescription = ''
