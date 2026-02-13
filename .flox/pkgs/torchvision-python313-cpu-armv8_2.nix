@@ -68,6 +68,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision CPU-only optimized for ARMv8.2";
       platforms = [ "aarch64-linux" ];

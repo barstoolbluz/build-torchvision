@@ -66,6 +66,10 @@ in
       echo "========================================="
     '';
 
+    postInstall = (oldAttrs.postInstall or "") + ''
+      echo 1 > $out/.metadata-rev
+    '';
+
     meta = oldAttrs.meta // {
       description = "TorchVision optimized for NVIDIA Blackwell (SM120: RTX 5090) + ARMv9";
       platforms = oldAttrs.meta.platforms or [ "x86_64-linux" "aarch64-linux" ];
