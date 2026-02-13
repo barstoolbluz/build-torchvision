@@ -566,6 +566,16 @@ hello.overrideAttrs (oldAttrs: {
 - `flox build .#hello` - build specific
 - `git add .flox/pkgs/*` - track files
 
+### Catalog Metadata Revision
+
+Every torchvision variant includes a `postInstall` block that writes a revision marker:
+```nix
+postInstall = (oldAttrs.postInstall or "") + ''
+  echo 1 > $out/.metadata-rev
+'';
+```
+Nix derivation hashes depend on build outputs, not `meta` attributes. Without this marker, metadata-only changes (descriptions, platforms) produce the same store path and the Flox catalog never re-indexes them. Bump the number when changing only metadata.
+
 
 ## 11 Publishing to Flox Catalog
 
