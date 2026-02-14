@@ -94,7 +94,6 @@ in
         - GPU: Metal Performance Shaders (MPS) for Apple Silicon
         - Platform: macOS 12.3+ on M1/M2/M3/M4
         - BLAS: vecLib (Apple Accelerate framework)
-        - PyTorch: 2.8.0 with MPS support
         - Python: 3.13
       '';
       platforms = [ "aarch64-darwin" ];
