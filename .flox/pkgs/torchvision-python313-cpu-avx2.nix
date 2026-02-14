@@ -15,6 +15,15 @@ let
       (final: prev: {
         python3Packages = prev.python3Packages.override {
           overrides = pfinal: pprev: {
+            torchvision = pprev.torchvision.overrideAttrs (oldAttrs: rec {
+              version = "0.25.0";
+              src = prev.fetchFromGitHub {
+                owner = "pytorch";
+                repo = "vision";
+                rev = "v${version}";
+                hash = "sha256-oktJHcT6T4f58pUO+HSBpbyS1ISH3zDlTsXQh6PcMy4=";
+              };
+            });
             torch = pprev.torch.overrideAttrs (oldAttrs: rec {
               version = "2.10.0";
               src = prev.fetchFromGitHub {
