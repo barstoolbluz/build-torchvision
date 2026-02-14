@@ -24,53 +24,18 @@ let
                 hash = "sha256-oktJHcT6T4f58pUO+HSBpbyS1ISH3zDlTsXQh6PcMy4=";
               };
             });
-            torch = pprev.torch.overrideAttrs (oldAttrs: rec {
-              version = "2.10.0";
-              src = prev.fetchFromGitHub {
-                owner = "pytorch";
-                repo = "pytorch";
-                rev = "v${version}";
-                hash = "sha256-RKiZLHBCneMtZKRgTEuW1K7+Jpi+tx11BMXuS1jC1xQ=";
-                fetchSubmodules = true;
-              };
-              patches = [];
-            });
           };
         };
       })
     ];
   };
 
-  customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
-    cudaSupport = false;
-  }).overrideAttrs (oldAttrs: {
-    pname = "pytorch210-for-torchvision-darwin-mps";
-    patches = [];
-    ninjaFlags = [ "-j32" ];
-    requiredSystemFeatures = [ "big-parallel" ];
-
-    buildInputs = nixpkgs_pinned.lib.filter (p: !(nixpkgs_pinned.lib.hasPrefix "cuda" (p.pname or "")))
-      (oldAttrs.buildInputs or []);
-    nativeBuildInputs = nixpkgs_pinned.lib.filter (p: p.pname or "" != "addDriverRunpath")
-      (oldAttrs.nativeBuildInputs or []);
-
-    cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
-      "-DTORCH_BUILD_VERSION=2.10.0"
-      "-DUSE_CUDA=OFF"
-    ];
-
-    preConfigure = (oldAttrs.preConfigure or "") + ''
-      export USE_CUDA=0
-      export USE_CUDNN=0
-      export USE_CUBLAS=0
-      export USE_MPS=1
-      export USE_METAL=1
-      export BLAS=vecLib
-      export MAX_JOBS=32
-      export PYTORCH_BUILD_VERSION=2.10.0
-      echo "2.10.0" > version.txt
-    '';
-  });
+  # Import the exact pytorch derivation from build-pytorch
+  # This ensures torchvision links against the same libtorch as the published pytorch package
+  pytorch_src = builtins.fetchTarball {
+    url = "https://github.com/barstoolbluz/build-pytorch/archive/6bd0b96.tar.gz";
+  };
+  customPytorch = import "${pytorch_src}/.flox/pkgs/pytorch-python313-darwin-mps.nix" {};
 
 in
   (nixpkgs_pinned.python3Packages.torchvision.override {
