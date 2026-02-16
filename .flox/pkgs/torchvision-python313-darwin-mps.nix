@@ -33,7 +33,7 @@ let
   # Import the exact pytorch derivation from build-pytorch
   # This ensures torchvision links against the same libtorch as the published pytorch package
   pytorch_src = builtins.fetchTarball {
-    url = "https://github.com/barstoolbluz/build-pytorch/archive/6bd0b96.tar.gz";
+    url = "https://github.com/barstoolbluz/build-pytorch/archive/6317465.tar.gz";
   };
   customPytorch = import "${pytorch_src}/.flox/pkgs/pytorch-python313-darwin-mps.nix" {};
 
