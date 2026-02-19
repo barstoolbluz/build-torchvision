@@ -133,6 +133,9 @@ in
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cuda13_0-sm89-avx2";
 
+    # Propagate pytorch's out output for transitive torch availability
+    propagatedBuildInputs = (oldAttrs.propagatedBuildInputs or []) ++ [ customPytorch.out ];
+
     # Limit build parallelism
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
