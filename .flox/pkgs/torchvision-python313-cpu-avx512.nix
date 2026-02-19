@@ -42,6 +42,9 @@ in
   }).overrideAttrs (oldAttrs: {
     pname = "torchvision-python313-cpu-avx512";
 
+    # Propagate pytorch's out output for transitive torch availability
+    propagatedBuildInputs = (oldAttrs.propagatedBuildInputs or []) ++ [ customPytorch.out ];
+
     ninjaFlags = [ "-j32" ];
     requiredSystemFeatures = [ "big-parallel" ];
 
