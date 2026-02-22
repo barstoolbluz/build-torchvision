@@ -21,7 +21,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
 | **`main`** ⬅️ | **0.23.0** | **2.8.0** | **12.8** | **45** | **Stable baseline + Darwin MPS** |
-| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 57 | Full coverage + SM75/SM103 |
+| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 58 | Full coverage + SM75/SM103 |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | 59 | Full matrix SM75–SM121 + ARM |
 
 Different GPU architectures require different minimum CUDA versions — SM103 needs CUDA 12.9+, SM110/SM121 need CUDA 13.0+.
@@ -94,7 +94,7 @@ Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
 
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
-| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | SM61–SM120 + SM75/SM103 | 57 (full coverage) |
+| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | SM61–SM120 + SM75/SM103 | 58 (full coverage) |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | SM75–SM121 + ARM | 59 |
 
 ```bash
