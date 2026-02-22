@@ -1,6 +1,6 @@
 # TorchVision Custom Build Environment
 
-> **You are on the `pytorch-2.10` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0 (59 variants)
+> **You are on the `pytorch-2.10` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0/13.1 (112 variants)
 
 This Flox environment builds custom TorchVision variants with targeted optimizations for specific GPU architectures and CPU instruction sets. Each variant pairs with a matching PyTorch build from `build-pytorch`.
 
@@ -22,7 +22,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 |--------|-------------|---------|------|----------|---------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 45 | Stable baseline |
 | `pytorch-2.9` | 0.24.0 | 2.9.1 | 12.9.1 | 58 | Full coverage + SM75/SM103 |
-| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0** | **59** | **This branch** — Full matrix SM75–SM121 |
+| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0 / 13.1** | **112** | **This branch** — Full matrix SM75–SM121, dual CUDA |
 
 Different GPU architectures require different minimum CUDA versions — SM103 needs CUDA 12.9+, SM110/SM121 need CUDA 13.0+.
 
@@ -32,13 +32,17 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 |--------|-------------|---------|------|-------|--------|------------|-------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 9.x | 3.13 | 550+ | [`fe5e41d`](https://github.com/NixOS/nixpkgs/tree/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3) |
 | `pytorch-2.9` | 0.24.0 | 2.9.1 | 12.9.1 | 9.13.0 | 3.13 | 550+ | [`6a030d5`](https://github.com/NixOS/nixpkgs/tree/6a030d535719c5190187c4cec156f335e95e3211) |
-| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0** | **TBD** | **3.13** | **570+** | **TBD** |
+| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0** | **9.x** | **3.13** | **570+** | [`6a030d5`](https://github.com/NixOS/nixpkgs/tree/6a030d535719c5190187c4cec156f335e95e3211) |
+| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.1** | **9.x** | **3.13** | **570+** | [`2017d6d`](https://github.com/NixOS/nixpkgs/tree/2017d6d515f8a7b289fe06d3a880a7ec588c3900) |
 
 ## Build Matrix (this branch: pytorch-2.10)
 
-**This branch builds TorchVision TBD with PyTorch 2.10 + CUDA 13.0** — full 41-variant matrix from SM75 (Turing) through SM121 (DGX Spark).
+**This branch builds TorchVision TBD with PyTorch 2.10 + CUDA 13.0/13.1** — 112 variants from SM75 (Turing) through SM121 (DGX Spark).
 
-### Complete Variant Matrix — 59 Variants
+- **CUDA 13.0 variants**: 52 GPU + 7 CPU + 1 Darwin = 60 total
+- **CUDA 13.1 variants**: 52 GPU (same matrix as 13.0)
+
+### Complete Variant Matrix — CUDA 13.0 (60 Variants)
 
 *Package pattern: `torchvision-python313-cuda13_0-{gpu}-{cpu}` | CPU-only: `torchvision-python313-cpu-{cpu}`*
 *Click package names to view build recipes.*
@@ -104,6 +108,17 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 | | ARMv9 | [`sm120-armv9`](.flox/pkgs/torchvision-python313-cuda13_0-sm120-armv9.nix) | RTX 5090 + Grace/Graviton3+ |
 | **SM121 (DGX Spark)** | ARMv8.2 | [`sm121-armv8_2`](.flox/pkgs/torchvision-python313-cuda13_0-sm121-armv8_2.nix) | DGX Spark + Graviton2/older ARM |
 | | ARMv9 | [`sm121-armv9`](.flox/pkgs/torchvision-python313-cuda13_0-sm121-armv9.nix) | DGX Spark + Grace/Graviton3+ |
+
+### CUDA 13.1 Variants — 52 GPU Variants
+
+*Same GPU/CPU matrix as CUDA 13.0, with package pattern: `torchvision-python313-cuda13_1-{gpu}-{cpu}`*
+
+CUDA 13.1 variants use nixpkgs pin [`2017d6d`](https://github.com/NixOS/nixpkgs/tree/2017d6d515f8a7b289fe06d3a880a7ec588c3900) with `cudaPackages_13_1`.
+
+```bash
+# Example: Build CUDA 13.1 variant
+flox build torchvision-python313-cuda13_1-sm90-avx512
+```
 
 ### Variants on Other Branches
 
@@ -328,11 +343,14 @@ flox build torchvision-python313-cuda13_0-sm90-armv9
 # Enter the build environment
 flox activate
 
-# Build a specific variant
+# Build a CUDA 13.0 variant
 flox build torchvision-python313-cuda13_0-sm90-avx512
 
-# The result will be in ./result-torchvision-python313-cuda13_0-sm90-avx512/
-ls -lh result-torchvision-python313-cuda13_0-sm90-avx512/
+# Build a CUDA 13.1 variant
+flox build torchvision-python313-cuda13_1-sm90-avx512
+
+# The result will be in ./result-torchvision-python313-cuda13_X-sm90-avx512/
+ls -lh result-torchvision-python313-cuda13_1-sm90-avx512/
 
 # Test the build
 ./result-torchvision-python313-cuda13_0-sm90-avx512/bin/python -c "
