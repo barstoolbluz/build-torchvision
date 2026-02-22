@@ -1,6 +1,6 @@
 # TorchVision Custom Build Environment
 
-> **You are on the `cuda-13_0` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0 (59 variants)
+> **You are on the `pytorch-2.10` branch** — TorchVision TBD + PyTorch 2.10 + CUDA 13.0 (59 variants)
 
 This Flox environment builds custom TorchVision variants with targeted optimizations for specific GPU architectures and CPU instruction sets. Each variant pairs with a matching PyTorch build from `build-pytorch`.
 
@@ -21,8 +21,8 @@ This repository provides TorchVision builds across multiple branches, each targe
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 45 | Stable baseline |
-| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 58 | Full coverage + SM75/SM103 |
-| **`cuda-13_0`** ⬅️ | **TBD** | **2.10** | **13.0** | **59** | **This branch** — Full matrix SM75–SM121 |
+| `pytorch-2.9` | 0.24.0 | 2.9.1 | 12.9.1 | 58 | Full coverage + SM75/SM103 |
+| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0** | **59** | **This branch** — Full matrix SM75–SM121 |
 
 Different GPU architectures require different minimum CUDA versions — SM103 needs CUDA 12.9+, SM110/SM121 need CUDA 13.0+.
 
@@ -31,10 +31,10 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 | Branch | TorchVision | PyTorch | CUDA | cuDNN | Python | Min Driver | Nixpkgs Pin |
 |--------|-------------|---------|------|-------|--------|------------|-------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 9.x | 3.13 | 550+ | [`fe5e41d`](https://github.com/NixOS/nixpkgs/tree/fe5e41d7ffc0421f0913e8472ce6238ed0daf8e3) |
-| `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 9.13.0 | 3.13 | 550+ | [`6a030d5`](https://github.com/NixOS/nixpkgs/tree/6a030d535719c5190187c4cec156f335e95e3211) |
-| **`cuda-13_0`** ⬅️ | **TBD** | **2.10** | **13.0** | **TBD** | **3.13** | **570+** | **TBD** |
+| `pytorch-2.9` | 0.24.0 | 2.9.1 | 12.9.1 | 9.13.0 | 3.13 | 550+ | [`6a030d5`](https://github.com/NixOS/nixpkgs/tree/6a030d535719c5190187c4cec156f335e95e3211) |
+| **`pytorch-2.10`** ⬅️ | **TBD** | **2.10** | **13.0** | **TBD** | **3.13** | **570+** | **TBD** |
 
-## Build Matrix (this branch: cuda-13_0)
+## Build Matrix (this branch: pytorch-2.10)
 
 **This branch builds TorchVision TBD with PyTorch 2.10 + CUDA 13.0** — full 41-variant matrix from SM75 (Turing) through SM121 (DGX Spark).
 
@@ -112,11 +112,11 @@ Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 45 (stable baseline) |
-| `cuda-12_9` | 0.24.0 | **2.9.1** | **12.9.1** | SM61–SM120 + SM75/SM103 | **58** (recommended) |
+| `pytorch-2.9` | 0.24.0 | **2.9.1** | **12.9.1** | SM61–SM120 + SM75/SM103 | **58** (recommended) |
 
 ```bash
 # TorchVision 0.24.0 + PyTorch 2.9.1 + CUDA 12.9.1 (recommended for most use cases)
-git checkout cuda-12_9 && flox build torchvision-python313-cuda12_9-sm90-avx512
+git checkout pytorch-2.9 && flox build torchvision-python313-cuda12_9-sm90-avx512
 
 # TorchVision 0.23.0 + PyTorch 2.8.0 + CUDA 12.8 (stable baseline)
 git checkout main && flox build torchvision-python313-cuda12_8-sm90-avx512
