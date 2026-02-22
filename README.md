@@ -20,7 +20,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
-| `main` | 0.23.0 | 2.8.0 | 12.8 | 44 | Stable baseline |
+| `main` | 0.23.0 | 2.8.0 | 12.8 | 45 | Stable baseline |
 | `cuda-12_9` | 0.24.0 | 2.9.1 | 12.9.1 | 57 | Full coverage + SM75/SM103 |
 | **`cuda-13_0`** ⬅️ | **TBD** | **2.10** | **13.0** | **59** | **This branch** — Full matrix SM75–SM121 |
 
@@ -111,7 +111,7 @@ Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
 
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
-| `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 44 (stable baseline) |
+| `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 45 (stable baseline) |
 | `cuda-12_9` | 0.24.0 | **2.9.1** | **12.9.1** | SM61–SM120 + SM75/SM103 | **57** (recommended) |
 
 ```bash
@@ -139,7 +139,7 @@ git checkout main && flox build torchvision-python313-cuda12_8-sm90-avx512
 - Driver: NVIDIA 550+
 - CUDA: Requires 13.0+ (nvcc 12.8 does not recognize sm_110)
 
-**SM103 (Blackwell B300 Datacenter) - Compute Capability 10.3** *(cuda-12_9 branch)*
+**SM103 (Blackwell B300 Datacenter) - Compute Capability 10.3** *(cuda-12_9+ branches)*
 - Datacenter: B300
 - Driver: NVIDIA 550+
 - CUDA: Requires 12.9+ (nvcc 12.8 does not recognize sm_103)
@@ -292,7 +292,7 @@ grep -E 'avx|sve' /proc/cpuinfo
 lscpu | grep avx512f  # ✓ Found AVX-512
 
 # Build variant
-flox build torchvision-python313-cuda12_8-sm86-avx512
+flox build torchvision-python313-cuda13_0-sm86-avx512
 ```
 
 **Scenario 2: H100 Datacenter + AMD EPYC Zen 4**
@@ -301,10 +301,10 @@ flox build torchvision-python313-cuda12_8-sm86-avx512
 lscpu | grep avx512_vnni  # ✓ Found for INT8 inference
 
 # For training
-flox build torchvision-python313-cuda12_8-sm90-avx512
+flox build torchvision-python313-cuda13_0-sm90-avx512
 
 # For INT8 inference
-flox build torchvision-python313-cuda12_8-sm90-avx512vnni
+flox build torchvision-python313-cuda13_0-sm90-avx512vnni
 ```
 
 **Scenario 3: Development Laptop (no GPU)**
@@ -319,7 +319,7 @@ flox build torchvision-python313-cpu-avx2
 lscpu | grep sve2  # ✓ Found (Graviton3 has SVE2)
 
 # Build variant
-flox build torchvision-python313-cuda12_8-sm90-armv9
+flox build torchvision-python313-cuda13_0-sm90-armv9
 ```
 
 ## Quick Start
@@ -397,6 +397,18 @@ customPytorch = (nixpkgs_pinned.python3Packages.torch.override {
 | GPU (CUDA) | cuBLAS | NVIDIA's optimized GPU library |
 | CPU (x86-64) | OpenBLAS | Open-source, good performance |
 | CPU (alternative) | Intel MKL | Proprietary, slightly faster, available in Flox catalog as `mkl` |
+
+### Catalog Metadata Revision
+
+Every variant includes a `postInstall` block that writes a revision marker to the build output:
+
+```nix
+postInstall = (oldAttrs.postInstall or "") + ''
+  echo 1 > $out/.metadata-rev
+'';
+```
+
+Nix derivation hashes depend on build outputs, not `meta` attributes. Without this marker, metadata-only changes (descriptions, platforms) produce the same store path and the Flox catalog never re-indexes them. Bump the number when changing only metadata.
 
 ## Architecture
 
@@ -570,7 +582,7 @@ Ensure you're building on a Linux system. GPU builds are Linux-only.
 
 Verify the SM architecture is supported by your CUDA version:
 - SM110/SM121 require CUDA 13.0+ (this branch)
-- SM103 requires CUDA 12.9+ (cuda-12_9 branch)
+- SM103 requires CUDA 12.9+ (cuda-12_9+ branches)
 
 ### CPU build performance is poor
 
