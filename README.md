@@ -1,6 +1,6 @@
 # TorchVision Custom Build Environment
 
-> **You are on the `cuda-12_9` branch** — TorchVision 0.24.0 + PyTorch 2.9.1 + CUDA 12.9.1 (57 variants)
+> **You are on the `cuda-12_9` branch** — TorchVision 0.24.0 + PyTorch 2.9.1 + CUDA 12.9.1 (58 variants)
 
 This Flox environment builds custom TorchVision variants with targeted optimizations for specific GPU architectures and CPU instruction sets. Each variant pairs with a matching PyTorch build from `build-pytorch`.
 
@@ -20,7 +20,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
-| `main` | 0.23.0 | 2.8.0 | 12.8 | 44 | Stable baseline |
+| `main` | 0.23.0 | 2.8.0 | 12.8 | 45 | Stable baseline |
 | **`cuda-12_9`** ⬅️ | **0.24.0** | **2.9.1** | **12.9.1** | **57** | **This branch** — Full coverage + SM75/SM103 (B300) |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | 59 | Full matrix SM75–SM121 + ARM |
 
@@ -106,7 +106,7 @@ Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
 
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
-| `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 44 (stable baseline) |
+| `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 45 (stable baseline) |
 | **`cuda-12_9`** ⬅️ | 0.24.0 | 2.9.1 | 12.9.1 | SM61–SM120, SM75, SM103, CPU | 57 (this branch) |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | SM75–SM121 + ARM | 59 |
 
