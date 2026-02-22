@@ -139,7 +139,7 @@ git checkout main && flox build torchvision-python313-cuda12_8-sm90-avx512
 - Driver: NVIDIA 550+
 - CUDA: Requires 13.0+ (nvcc 12.8 does not recognize sm_110)
 
-**SM103 (Blackwell B300 Datacenter) - Compute Capability 10.3** *(cuda-12_9+ branches)*
+**SM103 (Blackwell B300 Datacenter) - Compute Capability 10.3** *(pytorch-2.9+ branches)*
 - Datacenter: B300
 - Driver: NVIDIA 550+
 - CUDA: Requires 12.9+ (nvcc 12.8 does not recognize sm_103)
@@ -582,7 +582,7 @@ Ensure you're building on a Linux system. GPU builds are Linux-only.
 
 Verify the SM architecture is supported by your CUDA version:
 - SM110/SM121 require CUDA 13.0+ (this branch)
-- SM103 requires CUDA 12.9+ (cuda-12_9+ branches)
+- SM103 requires CUDA 12.9+ (pytorch-2.9+ branches)
 
 ### CPU build performance is poor
 
