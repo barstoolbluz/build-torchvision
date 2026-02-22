@@ -21,7 +21,7 @@ This repository provides TorchVision builds across multiple branches, each targe
 | Branch | TorchVision | PyTorch | CUDA | Variants | Key Additions |
 |--------|-------------|---------|------|----------|---------------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | 45 | Stable baseline |
-| **`cuda-12_9`** ⬅️ | **0.24.0** | **2.9.1** | **12.9.1** | **57** | **This branch** — Full coverage + SM75/SM103 (B300) |
+| **`cuda-12_9`** ⬅️ | **0.24.0** | **2.9.1** | **12.9.1** | **58** | **This branch** — Full coverage + SM75/SM103 (B300) |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | 59 | Full matrix SM75–SM121 + ARM |
 
 Different GPU architectures require different minimum CUDA versions — SM103 needs CUDA 12.9+, SM110/SM121 need CUDA 13.0+.
@@ -36,7 +36,7 @@ Different GPU architectures require different minimum CUDA versions — SM103 ne
 
 ## Build Matrix (this branch: cuda-12_9)
 
-**This branch builds TorchVision 0.24.0 with PyTorch 2.9.1 + CUDA 12.9.1** — 57 variants covering all GPU architectures plus SM75 (Turing) and SM103 (B300).
+**This branch builds TorchVision 0.24.0 with PyTorch 2.9.1 + CUDA 12.9.1** — 58 variants covering all GPU architectures plus SM75 (Turing) and SM103 (B300).
 
 ### Complete Variant Matrix
 
@@ -107,7 +107,7 @@ Different TorchVision + PyTorch + CUDA combinations live on dedicated branches:
 | Branch | TorchVision | PyTorch | CUDA | Architectures | Variants |
 |--------|-------------|---------|------|---------------|----------|
 | `main` | 0.23.0 | 2.8.0 | 12.8 | SM61–SM120, CPU | 45 (stable baseline) |
-| **`cuda-12_9`** ⬅️ | 0.24.0 | 2.9.1 | 12.9.1 | SM61–SM120, SM75, SM103, CPU | 57 (this branch) |
+| **`cuda-12_9`** ⬅️ | 0.24.0 | 2.9.1 | 12.9.1 | SM61–SM120, SM75, SM103, CPU | 58 (this branch) |
 | `cuda-13_0` | TBD | 2.10 | 13.0 | SM75–SM121 + ARM | 59 |
 
 ```bash
@@ -414,7 +414,7 @@ build-torchvision/
 ├── .flox/
 │   ├── env/
 │   │   └── manifest.toml          # Build environment definition
-│   └── pkgs/                      # Nix expression builds (57 variants on this branch)
+│   └── pkgs/                      # Nix expression builds (58 variants on this branch)
 │       ├── torchvision-python313-cpu-*.nix              # 7 CPU-only variants (including AVX)
 │       ├── torchvision-python313-cuda12_9-sm61-*.nix    # 2 SM61 variants (Pascal)
 │       ├── torchvision-python313-cuda12_9-sm75-*.nix    # 6 SM75 variants (Turing)
